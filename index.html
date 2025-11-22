@@ -494,6 +494,74 @@
             cursor: pointer;
         }
         
+        /* 使用引导样式 */
+        .guide-prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 20, 33, 0.95);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .guide-content {
+            background: #1a2235;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #00d2d3;
+        }
+        
+        .guide-content h3 {
+            color: #00d2d3;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        
+        .guide-content p {
+            margin: 10px 0;
+            text-align: left;
+            color: #eaecef;
+        }
+        
+        .guide-content button {
+            background: #00d2d3;
+            color: #0d1421;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        
+        /* API提示信息样式 */
+        .api-tips {
+            background: rgba(0, 210, 211, 0.1);
+            border: 1px solid rgba(0, 210, 211, 0.3);
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #00d2d3;
+        }
+        
+        .api-tips ul {
+            margin: 8px 0 8px 20px;
+        }
+        
+        .api-tips li {
+            margin: 5px 0;
+        }
+        
         /* 移动端优化 */
         @media (max-width: 768px) {
             .dashboard {
@@ -532,6 +600,10 @@
                 width: 95%;
                 bottom: 10px;
             }
+            
+            .guide-content {
+                padding: 20px;
+            }
         }
         
         /* 添加到主屏幕提示 */
@@ -552,6 +624,24 @@
     </style>
 </head>
 <body>
+    <!-- 使用引导提示 -->
+    <div class="guide-prompt" id="guidePrompt">
+        <div class="guide-content">
+            <h3>🎉 欢迎使用OKX资产监控</h3>
+            <p>📱 <strong>移动端优化</strong> - 完美适配手机使用</p>
+            <p>🔐 <strong>安全第一</strong> - API密钥仅存储在本地</p>
+            <p>📊 <strong>数据可视化</strong> - 图表展示资产分布和趋势</p>
+            <p>🔄 <strong>实时更新</strong> - 支持自动刷新数据</p>
+            <br>
+            <p><strong>使用步骤：</strong></p>
+            <p>1. 在OKX官网创建API密钥（只读权限）</p>
+            <p>2. 在下方配置API信息</p>
+            <p>3. 点击刷新数据查看资产</p>
+            <p>4. 点击"添加到主屏幕"获得更好体验</p>
+            <button onclick="closeGuide()">开始使用</button>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <h1>OKX资产监控</h1>
@@ -572,6 +662,18 @@
                 <label for="passphrase">Passphrase</label>
                 <input type="password" id="passphrase" placeholder="请输入您的Passphrase">
             </div>
+            
+            <!-- API配置提示 -->
+            <div class="api-tips">
+                <strong>💡 安全提示：</strong>
+                <ul>
+                    <li>在OKX创建API时请只勾选"读取"权限</li>
+                    <li>建议设置IP白名单限制</li>
+                    <li>API密钥仅存储在您的浏览器本地</li>
+                    <li>定期更换API密钥确保安全</li>
+                </ul>
+            </div>
+            
             <div class="api-actions">
                 <button class="save-btn" id="save-api">保存API配置</button>
                 <button class="clear-btn" id="clear-api">清除配置</button>
@@ -660,10 +762,10 @@
     <!-- PWA安装提示 -->
     <div class="install-prompt" id="installPrompt">
         <div class="install-prompt-content">
-            <div class="install-prompt-text">添加到主屏幕获得更好体验</div>
+            <div class="install-prompt-text">📱 添加到主屏幕获得更好体验</div>
             <div class="install-prompt-buttons">
-                <button class="install-btn" id="installBtn">安装应用</button>
-                <button class="cancel-install-btn" id="cancelInstall">稍后</button>
+                <button class="install-btn" id="installBtn">立即安装</button>
+                <button class="cancel-install-btn" id="cancelInstall">稍后再说</button>
             </div>
         </div>
     </div>
@@ -781,6 +883,18 @@
             document.head.appendChild(link);
         }
 
+        // ========== 使用引导功能 ==========
+        function showGuide() {
+            if (!localStorage.getItem('okxGuideShown')) {
+                document.getElementById('guidePrompt').style.display = 'flex';
+            }
+        }
+
+        function closeGuide() {
+            document.getElementById('guidePrompt').style.display = 'none';
+            localStorage.setItem('okxGuideShown', 'true');
+        }
+
         // ========== OKX API功能 ==========
         
         // 生成OKX API签名
@@ -821,8 +935,21 @@
 
                 const data = await response.json();
                 
+                // 增强错误处理
                 if (data.code !== '0') {
-                    throw new Error(`API错误: ${data.msg}`);
+                    if (data.code === '50113') {
+                        throw new Error('API密钥无效，请检查配置');
+                    } else if (data.code === '50114') {
+                        throw new Error('API密钥已过期');
+                    } else if (data.code === '50010') {
+                        throw new Error('IP地址未在白名单中，请在OKX后台添加当前IP');
+                    } else if (data.code === '50011') {
+                        throw new Error('API密钥权限不足，请检查权限设置');
+                    } else if (data.code === '50012') {
+                        throw new Error('系统繁忙，请稍后重试');
+                    } else {
+                        throw new Error(`API错误: ${data.msg} (代码: ${data.code})`);
+                    }
                 }
 
                 return data.data[0].details;
@@ -862,7 +989,7 @@
                 const data = await response.json();
                 
                 if (data.code !== '0') {
-                    throw new Error(`API错误: ${data.msg}`);
+                    throw new Error(`API错误: ${data.msg} (代码: ${data.code})`);
                 }
 
                 return data.data;
@@ -1453,7 +1580,7 @@
             setTimeout(() => {
                 statusElement.textContent = '';
                 statusElement.className = 'status';
-            }, 3000);
+            }, 5000);
         }
 
         // 保存API配置
@@ -1629,6 +1756,9 @@
             // 初始化PWA
             generateManifest();
             checkIOS();
+            
+            // 显示使用引导
+            showGuide();
             
             // 初始化应用功能
             initCharts();
