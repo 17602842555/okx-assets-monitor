@@ -154,11 +154,6 @@
             padding: 12px 15px;
             background: #232c41;
             border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .asset-item.updating {
-            background: rgba(0, 210, 211, 0.1);
         }
         
         .asset-name {
@@ -186,12 +181,7 @@
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
             margin-right: 10px;
-        }
-        
-        .refresh-btn:hover {
-            background: #00b8b9;
         }
         
         .refresh-btn:disabled {
@@ -202,7 +192,6 @@
         
         .api-config {
             margin-bottom: 30px;
-            transition: all 0.3s ease;
         }
         
         .api-config.hidden {
@@ -247,11 +236,6 @@
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .save-btn:hover {
-            background: #00b8b9;
         }
         
         .clear-btn {
@@ -262,11 +246,6 @@
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .clear-btn:hover {
-            background: rgba(255, 91, 90, 0.1);
         }
         
         .status {
@@ -307,14 +286,6 @@
             font-size: 14px;
         }
         
-        .positions-table tr {
-            transition: all 0.3s ease;
-        }
-        
-        .positions-table tr.updating {
-            background: rgba(0, 210, 211, 0.1);
-        }
-        
         .show-api-btn {
             background: transparent;
             color: #00d2d3;
@@ -323,56 +294,7 @@
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
             font-size: 12px;
-        }
-        
-        .show-api-btn:hover {
-            background: rgba(0, 210, 211, 0.1);
-        }
-        
-        .expand-btn {
-            background: transparent;
-            color: #8a94a6;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 5px;
-        }
-        
-        .position-details {
-            display: none;
-            padding: 20px;
-            background: #232c41;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        
-        .position-details.active {
-            display: block;
-        }
-        
-        .position-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .info-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .info-label {
-            color: #8a94a6;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-        
-        .info-value {
-            font-size: 14px;
-            font-weight: 600;
         }
         
         .no-data {
@@ -430,14 +352,8 @@
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
             font-size: 12px;
             margin-left: 10px;
-        }
-        
-        .export-btn:hover {
-            background: rgba(138, 148, 166, 0.1);
-            color: #eaecef;
         }
         
         .cache-indicator {
@@ -489,11 +405,6 @@
         .stat-value {
             font-size: 14px;
             font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .stat-value.updating {
-            color: #00d2d3;
         }
         
         .stat-value.positive {
@@ -516,140 +427,61 @@
             margin-bottom: 10px;
         }
         
-        /* 平滑过渡动画 */
-        .smooth-update {
-            transition: all 0.5s ease;
-        }
-        
-        .value-change {
-            animation: pulse 0.5s ease;
-        }
-        
-        @keyframes pulse {
-            0% { background-color: transparent; }
-            50% { background-color: rgba(0, 210, 211, 0.2); }
-            100% { background-color: transparent; }
-        }
-        
-        /* PWA安装提示样式 */
-        .install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a2235;
-            border: 1px solid #00d2d3;
-            border-radius: 12px;
+        /* 价格提醒样式 */
+        .alert-config {
+            margin-top: 15px;
             padding: 15px;
-            z-index: 1000;
-            display: none;
-            max-width: 90%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+            background: rgba(42, 51, 69, 0.3);
+            border-radius: 8px;
         }
         
-        .install-prompt-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .install-prompt-text {
-            text-align: center;
-            font-size: 14px;
-        }
-        
-        .install-prompt-buttons {
+        .alert-input-group {
             display: flex;
             gap: 10px;
-        }
-        
-        .install-btn {
-            background: #00d2d3;
-            color: #0d1421;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        
-        .cancel-install-btn {
-            background: transparent;
-            color: #8a94a6;
-            border: 1px solid #8a94a6;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        
-        /* 使用引导样式 */
-        .guide-prompt {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(13, 20, 33, 0.95);
-            z-index: 9999;
-            display: none;
+            margin-bottom: 10px;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
         }
         
-        .guide-content {
-            background: #1a2235;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            border: 1px solid #00d2d3;
-        }
-        
-        .guide-content h3 {
-            color: #00d2d3;
-            margin-bottom: 20px;
-            font-size: 20px;
-        }
-        
-        .guide-content p {
-            margin: 10px 0;
-            text-align: left;
+        .alert-input-group input {
+            flex: 1;
+            padding: 8px 12px;
+            background: #232c41;
+            border: 1px solid #2a3345;
+            border-radius: 6px;
             color: #eaecef;
         }
         
-        .guide-content button {
-            background: #00d2d3;
-            color: #0d1421;
+        .alert-btn {
+            background: #ff5b5a;
+            color: white;
             border: none;
-            padding: 12px 30px;
+            padding: 8px 15px;
             border-radius: 6px;
-            font-weight: 600;
             cursor: pointer;
-            margin-top: 20px;
-            font-size: 16px;
-        }
-        
-        /* API提示信息样式 */
-        .api-tips {
-            background: rgba(0, 210, 211, 0.1);
-            border: 1px solid rgba(0, 210, 211, 0.3);
-            border-radius: 6px;
-            padding: 12px 15px;
-            margin-top: 15px;
             font-size: 12px;
-            color: #00d2d3;
         }
         
-        .api-tips ul {
-            margin: 8px 0 8px 20px;
+        .alerts-list {
+            margin-top: 10px;
         }
         
-        .api-tips li {
-            margin: 5px 0;
+        .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #232c41;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .remove-alert {
+            background: transparent;
+            color: #ff5b5a;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
         }
         
         /* 移动端优化 */
@@ -672,10 +504,6 @@
                 overflow-x: auto;
             }
             
-            .position-info {
-                grid-template-columns: 1fr;
-            }
-            
             .total-assets {
                 font-size: 28px;
             }
@@ -686,15 +514,6 @@
                 margin-bottom: 5px;
             }
             
-            .install-prompt {
-                width: 95%;
-                bottom: 10px;
-            }
-            
-            .guide-content {
-                padding: 20px;
-            }
-            
             .trend-stats {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -702,24 +521,6 @@
     </style>
 </head>
 <body>
-    <!-- 使用引导提示 -->
-    <div class="guide-prompt" id="guidePrompt">
-        <div class="guide-content">
-            <h3>🎉 欢迎使用OKX资产监控</h3>
-            <p>📱 <strong>移动端优化</strong> - 完美适配手机使用</p>
-            <p>🔐 <strong>安全第一</strong> - API密钥仅存储在本地</p>
-            <p>📊 <strong>数据可视化</strong> - 图表展示资产分布和趋势</p>
-            <p>🔄 <strong>实时更新</strong> - 支持自动刷新数据</p>
-            <br>
-            <p><strong>使用步骤：</strong></p>
-            <p>1. 在OKX官网创建API密钥（只读权限）</p>
-            <p>2. 在下方配置API信息</p>
-            <p>3. 点击刷新数据查看资产</p>
-            <p>4. 点击"添加到主屏幕"获得更好体验</p>
-            <button onclick="closeGuide()">开始使用</button>
-        </div>
-    </div>
-
     <!-- 全局加载遮罩 -->
     <div class="loading-overlay" id="globalLoading">
         <div class="loading-content">
@@ -747,17 +548,6 @@
             <div class="api-input-group">
                 <label for="passphrase">Passphrase</label>
                 <input type="password" id="passphrase" placeholder="请输入您的Passphrase">
-            </div>
-            
-            <!-- API配置提示 -->
-            <div class="api-tips">
-                <strong>💡 安全提示：</strong>
-                <ul>
-                    <li>在OKX创建API时请只勾选"读取"权限</li>
-                    <li>建议设置IP白名单限制</li>
-                    <li>API密钥仅存储在您的浏览器本地</li>
-                    <li>定期更换API密钥确保安全</li>
-                </ul>
             </div>
             
             <div class="api-actions">
@@ -800,45 +590,11 @@
                         <button class="trend-btn active" data-period="24h">24H</button>
                         <button class="trend-btn" data-period="7d">7D</button>
                         <button class="trend-btn" data-period="30d">1M</button>
-                        <button class="trend-btn" data-period="all">全部</button>
-                    </div>
-                </div>
-                
-                <!-- 趋势统计信息 -->
-                <div class="trend-stats" id="trend-stats">
-                    <div class="stat-item">
-                        <div class="stat-label">当前资产</div>
-                        <div class="stat-value" id="current-value">--</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">周期变化</div>
-                        <div class="stat-value" id="period-change">--</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">变化率</div>
-                        <div class="stat-value" id="change-rate">--</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">最高值</div>
-                        <div class="stat-value" id="period-high">--</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">最低值</div>
-                        <div class="stat-value" id="period-low">--</div>
                     </div>
                 </div>
                 
                 <div class="chart-container" id="trend-container">
                     <canvas id="trend-chart"></canvas>
-                </div>
-                
-                <!-- 数据管理 -->
-                <div class="data-management">
-                    <div class="data-info" id="data-info">
-                        数据点: 0 | 开始时间: --
-                    </div>
-                    <button class="export-btn" id="export-trend-data">导出趋势数据</button>
-                    <button class="clear-btn" id="clear-trend-data" style="margin-left: 10px;">清除历史数据</button>
                 </div>
             </div>
         </div>
@@ -856,32 +612,24 @@
                 <table class="positions-table">
                     <thead>
                         <tr>
-                            <th>币种</th>
-                            <th>持仓数量</th>
-                            <th>持仓价值</th>
+                            <th>合约</th>
+                            <th>方向</th>
+                            <th>持仓量</th>
+                            <th>标记价格</th>
+                            <th>开仓价格</th>
+                            <th>预估强平价</th>
                             <th>浮动收益</th>
                             <th>收益率</th>
-                            <th>占比</th>
-                            <th>操作</th>
+                            <th>维持保证金率</th>
+                            <th>价格提醒</th>
                         </tr>
                     </thead>
                     <tbody id="positions-body">
                         <tr>
-                            <td colspan="7" class="no-data">请配置API并刷新数据</td>
+                            <td colspan="10" class="no-data">请配置API并刷新数据</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- PWA安装提示 -->
-    <div class="install-prompt" id="installPrompt">
-        <div class="install-prompt-content">
-            <div class="install-prompt-text">📱 添加到主屏幕获得更好体验</div>
-            <div class="install-prompt-buttons">
-                <button class="install-btn" id="installBtn">立即安装</button>
-                <button class="cancel-install-btn" id="cancelInstall">稍后再说</button>
             </div>
         </div>
     </div>
@@ -906,33 +654,130 @@
         let currentUnit = 'USD';
         let currentTrendPeriod = '24h';
         let isUpdating = false;
+        let priceAlerts = JSON.parse(localStorage.getItem('priceAlerts') || '{}');
 
         // 初始化图表
         let distributionChart, trendChart;
 
-        // ========== 无刷新更新函数 ==========
-
-        // 平滑更新总资产显示
-        function smoothUpdateTotalAssets(newTotal) {
-            const totalAssetsElement = document.getElementById('total-assets');
-            const oldValue = assetsData.total || 0;
-            const newValue = newTotal;
-            
-            // 添加更新动画
-            totalAssetsElement.classList.add('value-change');
-            
-            // 立即更新显示
-            updateTotalAssetsDisplay(newValue);
-            
-            // 移除动画类
-            setTimeout(() => {
-                totalAssetsElement.classList.remove('value-change');
-            }, 500);
-            
-            assetsData.total = newValue;
+        // ========== 价格提醒功能 ==========
+        
+        function addPriceAlert(instId, targetPrice) {
+            if (!priceAlerts[instId]) {
+                priceAlerts[instId] = [];
+            }
+            priceAlerts[instId].push({
+                id: Date.now(),
+                price: parseFloat(targetPrice),
+                triggered: false
+            });
+            localStorage.setItem('priceAlerts', JSON.stringify(priceAlerts));
+        }
+        
+        function removePriceAlert(instId, alertId) {
+            if (priceAlerts[instId]) {
+                priceAlerts[instId] = priceAlerts[instId].filter(alert => alert.id !== alertId);
+                if (priceAlerts[instId].length === 0) {
+                    delete priceAlerts[instId];
+                }
+                localStorage.setItem('priceAlerts', JSON.stringify(priceAlerts));
+            }
+        }
+        
+        function checkPriceAlerts() {
+            assetsData.positions.forEach(position => {
+                const alerts = priceAlerts[position.instId];
+                if (alerts) {
+                    alerts.forEach(alert => {
+                        if (!alert.triggered && 
+                            ((position.posSide === 'long' && position.markPx >= alert.price) ||
+                             (position.posSide === 'short' && position.markPx <= alert.price))) {
+                            // 触发提醒
+                            playAlertSound();
+                            alert.triggered = true;
+                            showStatus(`价格提醒: ${position.instId} 达到 ${alert.price}`, 'success');
+                        }
+                    });
+                }
+            });
+        }
+        
+        function playAlertSound() {
+            // 创建音频上下文播放提示音
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+            } catch (e) {
+                console.log('音频播放失败:', e);
+            }
         }
 
-        // 更新总资产显示（不重新创建DOM）
+        // ========== 数据处理函数 ==========
+
+        // 处理持仓数据 - 修复收益率计算
+        function processPositionsData(positions) {
+            if (!positions || positions.length === 0) {
+                return [];
+            }
+            
+            const activePositions = positions.filter(position => 
+                parseFloat(position.pos) > 0
+            );
+            
+            if (activePositions.length === 0) {
+                return [];
+            }
+            
+            return activePositions.map(position => {
+                const pos = parseFloat(position.pos);
+                const avgPx = parseFloat(position.avgPx) || 0;
+                const markPx = parseFloat(position.markPx) || 0;
+                const liqPx = parseFloat(position.liqPx) || 0;
+                const margin = parseFloat(position.margin) || 0;
+                const mgnRatio = parseFloat(position.mgnRatio) || 0;
+                
+                // 计算浮动收益
+                let unrealizedPnl = 0;
+                if (position.posSide === 'long') {
+                    unrealizedPnl = (markPx - avgPx) * pos;
+                } else {
+                    unrealizedPnl = (avgPx - markPx) * pos;
+                }
+                
+                // 修复收益率计算 - 基于保证金计算
+                const pnlPercent = margin > 0 ? (unrealizedPnl / margin * 100) : 0;
+                
+                return {
+                    instId: position.instId,
+                    ccy: position.instId.split('-')[0],
+                    pos: pos,
+                    avgPx: avgPx,
+                    markPx: markPx,
+                    liqPx: liqPx,
+                    unrealizedPnl: unrealizedPnl,
+                    pnlPercent: pnlPercent,
+                    margin: margin,
+                    mgnRatio: mgnRatio,
+                    posSide: position.posSide || 'long',
+                    lever: parseFloat(position.lever) || 1
+                };
+            });
+        }
+
+        // ========== 无刷新更新函数 ==========
+
         function updateTotalAssetsDisplay(total) {
             let displayValue = total;
             let unitSymbol = '$';
@@ -946,31 +791,22 @@
             }
             
             const totalAssetsElement = document.getElementById('total-assets');
-            // 只更新文本内容，不重新创建DOM
             totalAssetsElement.innerHTML = `
                 ${unitSymbol}${formatNumber(displayValue)}
                 <button class="unit-toggle" id="unit-toggle">切换单位</button>
             `;
-            
-            // 重新绑定单位切换事件
-            const toggleBtn = totalAssetsElement.querySelector('#unit-toggle');
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', toggleUnit);
-            }
         }
 
-        // 平滑更新资产详情
-        function smoothUpdateAssetsBreakdown(newBreakdown) {
+        function updateAssetsBreakdown(newBreakdown) {
             const breakdownContainer = document.getElementById('assets-breakdown');
             
             if (!newBreakdown || newBreakdown.length === 0) {
-                if (breakdownContainer.innerHTML.includes('no-data')) return;
                 breakdownContainer.innerHTML = '<div class="no-data">暂无资产数据</div>';
                 return;
             }
             
-            // 创建或更新资产项
-            newBreakdown.forEach((asset, index) => {
+            let html = '';
+            newBreakdown.forEach(asset => {
                 let displayValue = asset.value;
                 let unitSymbol = '$';
                 
@@ -982,7 +818,7 @@
                     unitSymbol = '₿';
                 }
                 
-                const assetHtml = `
+                html += `
                     <div class="asset-item">
                         <div class="asset-name">
                             <div class="asset-icon" style="background-color: ${asset.color}">${asset.name.substring(0, 2)}</div>
@@ -994,135 +830,93 @@
                         </div>
                     </div>
                 `;
-                
-                const existingItem = breakdownContainer.children[index];
-                if (existingItem && existingItem.classList.contains('asset-item')) {
-                    // 更新现有项
-                    existingItem.outerHTML = assetHtml;
-                } else {
-                    // 添加新项
-                    breakdownContainer.innerHTML += assetHtml;
-                }
             });
             
-            // 移除多余的项
-            const currentItems = breakdownContainer.querySelectorAll('.asset-item');
-            if (currentItems.length > newBreakdown.length) {
-                for (let i = newBreakdown.length; i < currentItems.length; i++) {
-                    currentItems[i].remove();
-                }
-            }
-            
-            assetsData.breakdown = newBreakdown;
+            breakdownContainer.innerHTML = html;
         }
 
-        // 平滑更新持仓详情
-        function smoothUpdatePositions(newPositions) {
+        function updatePositions(newPositions) {
             const positionsBody = document.getElementById('positions-body');
             
             if (!newPositions || newPositions.length === 0) {
-                if (!positionsBody.innerHTML.includes('no-data')) {
-                    positionsBody.innerHTML = '<tr><td colspan="7" class="no-data">暂无持仓数据</td></tr>';
-                }
+                positionsBody.innerHTML = '<tr><td colspan="10" class="no-data">暂无持仓数据</td></tr>';
                 return;
             }
             
-            // 计算总持仓价值用于占比计算
-            const totalPositionValue = newPositions.reduce((sum, position) => sum + position.value, 0);
-            
-            let newHtml = '';
+            let html = '';
             newPositions.forEach((position, index) => {
-                const positionId = `position-${index}`;
-                
-                let displayValue = position.value;
                 let displayPnl = position.unrealizedPnl;
                 let unitSymbol = '$';
                 
                 if (currentUnit === 'CNY') {
-                    displayValue = position.value * 7.2;
                     displayPnl = position.unrealizedPnl * 7.2;
                     unitSymbol = '¥';
                 } else if (currentUnit === 'BTC') {
-                    displayValue = position.value / 50000;
                     displayPnl = position.unrealizedPnl / 50000;
                     unitSymbol = '₿';
                 }
                 
-                const percentage = totalPositionValue > 0 ? (position.value / totalPositionValue * 100) : 0;
                 const directionClass = position.posSide === 'long' ? 'long' : 'short';
                 const directionText = position.posSide === 'long' ? '多' : '空';
+                const alerts = priceAlerts[position.instId] || [];
                 
-                newHtml += `
+                html += `
                     <tr>
-                        <td>
-                            ${position.ccy}
-                            <span class="position-direction ${directionClass}">${directionText}</span>
-                        </td>
-                        <td>${position.formattedPos}</td>
-                        <td>${unitSymbol}${formatNumber(displayValue)}</td>
+                        <td>${position.instId}</td>
+                        <td><span class="position-direction ${directionClass}">${directionText}</span></td>
+                        <td>${formatNumber(position.pos, 4)}</td>
+                        <td>${formatNumber(position.markPx, 4)}</td>
+                        <td>${formatNumber(position.avgPx, 4)}</td>
+                        <td>${position.liqPx > 0 ? formatNumber(position.liqPx, 4) : '--'}</td>
                         <td class="${position.unrealizedPnl >= 0 ? 'positive' : 'negative'}">
                             ${unitSymbol}${position.unrealizedPnl >= 0 ? '+' : ''}${formatNumber(displayPnl)}
                         </td>
                         <td class="${position.pnlPercent >= 0 ? 'positive' : 'negative'}">
                             ${position.pnlPercent >= 0 ? '+' : ''}${position.pnlPercent.toFixed(2)}%
                         </td>
-                        <td>${percentage.toFixed(2)}%</td>
-                        <td><button class="expand-btn" data-position="${positionId}">▼</button></td>
+                        <td>${(position.mgnRatio * 100).toFixed(2)}%</td>
+                        <td>
+                            <div class="alert-config">
+                                <div class="alert-input-group">
+                                    <input type="number" id="alert-price-${index}" placeholder="目标价格" step="0.0001">
+                                    <button class="alert-btn" onclick="addAlert('${position.instId}', ${index})">设置提醒</button>
+                                </div>
+                                <div class="alerts-list">
+                                    ${alerts.map(alert => `
+                                        <div class="alert-item">
+                                            <span>${alert.price}</span>
+                                            <button class="remove-alert" onclick="removeAlert('${position.instId}', ${alert.id})">×</button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
             
-            // 一次性更新整个表格内容
-            positionsBody.innerHTML = newHtml;
-            
-            // 重新绑定展开/收起事件
-            document.querySelectorAll('.expand-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const positionId = this.getAttribute('data-position');
-                    const details = document.getElementById(positionId);
-                    if (details) {
-                        details.classList.toggle('active');
-                        this.textContent = details.classList.contains('active') ? '▲' : '▼';
-                    }
-                });
-            });
-            
-            assetsData.positions = newPositions;
+            positionsBody.innerHTML = html;
         }
 
-        // 平滑更新图表
-        function smoothUpdateCharts(newBreakdown) {
-            if (newBreakdown && newBreakdown.length > 0) {
-                // 更新分布图
-                distributionChart.data.labels = newBreakdown.map(asset => asset.name);
-                distributionChart.data.datasets[0].data = newBreakdown.map(asset => parseFloat(asset.percentage));
-                distributionChart.data.datasets[0].backgroundColor = newBreakdown.map(asset => asset.color);
-                distributionChart.update('none'); // 使用 'none' 避免动画
+        // ========== 价格提醒界面函数 ==========
+
+        function addAlert(instId, index) {
+            const input = document.getElementById(`alert-price-${index}`);
+            const price = input.value;
+            if (price) {
+                addPriceAlert(instId, price);
+                input.value = '';
+                refreshData(); // 刷新界面更新提醒列表
             }
-            
-            // 更新趋势图
-            updateTrendChart(currentTrendPeriod);
+        }
+        
+        function removeAlert(instId, alertId) {
+            removePriceAlert(instId, alertId);
+            refreshData(); // 刷新界面更新提醒列表
         }
 
-        // 显示更新状态
-        function showUpdatingState() {
-            isUpdating = true;
-            document.getElementById('globalLoading').classList.add('active');
-            document.getElementById('refresh-btn').disabled = true;
-            document.getElementById('refresh-btn').textContent = '更新中...';
-        }
+        // ========== 其他核心函数 ==========
 
-        // 隐藏更新状态
-        function hideUpdatingState() {
-            isUpdating = false;
-            document.getElementById('globalLoading').classList.remove('active');
-            document.getElementById('refresh-btn').disabled = false;
-            document.getElementById('refresh-btn').textContent = '刷新数据';
-        }
-
-        // ========== 其他现有函数（保持原样，但调用新的平滑更新函数） ==========
-
-        // 刷新数据 - 使用平滑更新
         async function refreshData() {
             if (!apiConfig.apiKey || !apiConfig.secretKey || !apiConfig.passphrase) {
                 showStatus('请先配置API信息', 'error');
@@ -1131,7 +925,9 @@
             
             if (isUpdating) return;
             
-            showUpdatingState();
+            isUpdating = true;
+            document.getElementById('globalLoading').classList.add('active');
+            document.getElementById('refresh-btn').disabled = true;
             
             try {
                 const [balances, positions] = await Promise.all([
@@ -1141,52 +937,70 @@
                 
                 const processedData = processAssetData(balances);
                 if (processedData) {
-                    // 保存历史数据
                     saveHistoricalData(processedData.total);
                     
-                    // 使用平滑更新函数
-                    smoothUpdateTotalAssets(processedData.total);
-                    smoothUpdateAssetsBreakdown(processedData.breakdown);
-                    smoothUpdatePositions(processPositionsData(positions));
-                    smoothUpdateCharts(processedData.breakdown);
+                    assetsData = {
+                        ...processedData,
+                        positions: processPositionsData(positions)
+                    };
                     
+                    updateTotalAssetsDisplay(assetsData.total);
+                    updateAssetsBreakdown(assetsData.breakdown);
+                    updatePositions(assetsData.positions);
+                    updateCharts();
                     updateTime();
-                    updateTrendStats();
+                    checkPriceAlerts();
                     showStatus('数据更新成功', 'success');
-                } else {
-                    showStatus('暂无资产数据', 'error');
                 }
             } catch (error) {
-                console.error('刷新数据失败:', error);
                 showStatus('获取数据失败: ' + error.message, 'error');
             } finally {
-                hideUpdatingState();
+                isUpdating = false;
+                document.getElementById('globalLoading').classList.remove('active');
+                document.getElementById('refresh-btn').disabled = false;
             }
         }
 
-        // 切换显示单位 - 使用平滑更新
-        function toggleUnit() {
-            const units = ['USD', 'CNY', 'BTC'];
-            const currentIndex = units.indexOf(currentUnit);
-            currentUnit = units[(currentIndex + 1) % units.length];
+        // ========== 数据持久化方案 ==========
+
+        // 方案1: 使用GitHub Gist API存储数据（需要GitHub token）
+        async function saveDataToGist(data) {
+            const gistToken = localStorage.getItem('githubToken');
+            if (!gistToken) return null;
             
-            // 平滑更新所有显示
-            updateTotalAssetsDisplay(assetsData.total);
-            smoothUpdateAssetsBreakdown(assetsData.breakdown);
-            smoothUpdatePositions(assetsData.positions);
-            updateTrendChart(currentTrendPeriod);
+            try {
+                const response = await fetch('https://api.github.com/gists', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${gistToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        description: 'OKX资产历史数据',
+                        public: false,
+                        files: {
+                            'okx-data.json': {
+                                content: JSON.stringify(data)
+                            }
+                        }
+                    })
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('保存到Gist失败:', error);
+                return null;
+            }
         }
 
-        // 初始化页面
+        // 方案2: 使用浏览器同步存储（Chrome扩展可用）
+        function saveToSyncStorage(data) {
+            if (chrome && chrome.storage && chrome.storage.sync) {
+                chrome.storage.sync.set({okxData: data});
+            }
+        }
+
+        // 初始化
         function init() {
-            // 初始化PWA
-            generateManifest();
-            checkIOS();
-            
-            // 显示使用引导
-            showGuide();
-            
-            // 初始化应用功能
             initCharts();
             loadApiConfig();
             updateTotalAssetsDisplay(0);
@@ -1199,8 +1013,6 @@
             document.getElementById('auto-refresh-toggle').addEventListener('click', toggleAutoRefresh);
             document.getElementById('show-api-btn').addEventListener('click', showApiConfig);
             document.getElementById('export-data').addEventListener('click', exportData);
-            document.getElementById('export-trend-data').addEventListener('click', exportTrendData);
-            document.getElementById('clear-trend-data').addEventListener('click', clearTrendData);
             
             document.addEventListener('click', function(e) {
                 if (e.target && e.target.id === 'unit-toggle') {
@@ -1212,13 +1024,10 @@
             });
         }
 
-        // 注意：这里需要包含之前的所有其他函数（generateSignature, fetchAccountBalance, fetchPositions, 
-        // saveHistoricalData, getHistoricalData, processAssetData, processPositionsData, 
-        // getColorForCurrency, formatNumber, initCharts, updateTrendChart, calculateTrendStats, 
-        // updateTrendStats, exportTrendData, clearTrendData, showStatus, saveApiConfig, 
-        // clearApiConfig, loadApiConfig, showApiConfig, toggleAutoRefresh, exportData, 
-        // generateManifest, checkIOS, showGuide, closeGuide 等）
-        // 由于代码长度限制，这些函数保持不变，只是调用方式改为使用新的平滑更新函数
+        // 注意：这里需要包含其他必要的函数（fetchAccountBalance, fetchPositions, processAssetData, 
+        // generateSignature, formatNumber, initCharts, updateCharts, updateTrendChart, 
+        // saveHistoricalData, getHistoricalData, showStatus, saveApiConfig, clearApiConfig, 
+        // loadApiConfig, showApiConfig, toggleAutoRefresh, exportData 等）
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
