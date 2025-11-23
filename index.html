@@ -2010,59 +2010,138 @@
             }
         }
 
-        // 显示API配置
-        function showApiConfig() {
-            // 配置面板默认就是显示的，不需要额外操作
+        // 显示/隐藏API配置
+        function toggleApiConfig() {
+            const apiConfigElement = document.getElementById('api-config');
+            if (apiConfigElement) {
+                const isVisible = apiConfigElement.style.display !== 'none';
+                apiConfigElement.style.display = isVisible ? 'none' : 'block';
+                
+                const btn = document.getElementById('show-api-btn');
+                if (btn) {
+                    const texts = translations[systemConfig.language];
+                    btn.textContent = isVisible ? texts.showSettings : texts.hideSettings;
+                }
+            }
+        }
+        
+        // 添加隐藏设置的文本
+        if (!translations['zh-CN'].hideSettings) {
+            translations['zh-CN'].hideSettings = '隐藏设置';
+            translations['en-US'].hideSettings = 'Hide Settings';
         }
 
         // === 初始化函数 ===
         function init() {
-            console.log('初始化应用...');
+            console.log('%c初始化应用...', 'color: blue; font-weight: bold');
+            
+            // 检查是否有JavaScript错误
+            window.onerror = function(message, source, lineno, colno, error) {
+                console.error('%cJavaScript错误:', 'color: red; font-weight: bold', {
+                    message: message,
+                    source: source,
+                    lineno: lineno,
+                    colno: colno,
+                    error: error
+                });
+                return true;
+            };
             
             // 初始化图表
-            initCharts();
+            try {
+                initCharts();
+                console.log('✅ 图表初始化成功');
+            } catch (error) {
+                console.error('❌ 图表初始化失败:', error);
+            }
             
             // 加载所有配置和数据
-            loadAllConfig();
+            try {
+                loadAllConfig();
+                console.log('✅ 配置加载成功');
+            } catch (error) {
+                console.error('❌ 配置加载失败:', error);
+            }
             
             // 更新界面
-            updateTotalAssetsDisplay();
-            updateTime();
-            updateTrendChart();
+            try {
+                updateTotalAssetsDisplay();
+                updateTime();
+                updateTrendChart();
+                console.log('✅ 界面更新成功');
+            } catch (error) {
+                console.error('❌ 界面更新失败:', error);
+            }
             
             // 获取初始汇率
-            fetchExchangeRates();
-            // 每5分钟更新一次汇率
-            setInterval(fetchExchangeRates, 5 * 60 * 1000);
+            try {
+                fetchExchangeRates();
+                // 每5分钟更新一次汇率
+                setInterval(fetchExchangeRates, 5 * 60 * 1000);
+                console.log('✅ 汇率功能初始化成功');
+            } catch (error) {
+                console.error('❌ 汇率功能初始化失败:', error);
+            }
             
             // === 绑定事件监听器 ===
+            console.log('%c开始绑定事件监听器...', 'color: green; font-weight: bold');
+            
+            const bindEvent = function(elementId, event, handler, description) {
+                try {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.addEventListener(event, handler);
+                        console.log(`✅ 绑定事件成功: ${elementId} - ${description}`);
+                        
+                        // 添加调试点击处理
+                        const originalHandler = handler;
+                        element.addEventListener(event, function(e) {
+                            console.log(`%c按钮点击: ${elementId}`, 'background: #222; color: #bada55; padding: 2px 5px; border-radius: 3px;');
+                            // 执行原始处理函数
+                            originalHandler.call(this, e);
+                        });
+                    } else {
+                        console.warn(`⚠️  元素未找到: ${elementId}`);
+                    }
+                } catch (error) {
+                    console.error(`❌ 绑定事件失败: ${elementId}`, error);
+                }
+            };
             
             // 主要按钮
-            document.getElementById('save-api').addEventListener('click', saveApiConfig);
-            document.getElementById('clear-api').addEventListener('click', clearApiConfig);
-            document.getElementById('save-github-btn').addEventListener('click', saveGitHubConfig);
-            document.getElementById('sync-to-github-btn').addEventListener('click', saveDataToGitHub);
-            document.getElementById('sync-from-github-btn').addEventListener('click', loadDataFromGitHub);
-            document.getElementById('refresh-btn').addEventListener('click', refreshData);
-            document.getElementById('auto-refresh-toggle').addEventListener('click', toggleAutoRefresh);
-            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-            document.getElementById('assets-detail-title').addEventListener('click', toggleAssetsDetail);
+            bindEvent('save-api', 'click', saveApiConfig, '保存API配置');
+            bindEvent('clear-api', 'click', clearApiConfig, '清除API配置');
+            bindEvent('save-github-btn', 'click', saveGitHubConfig, '保存GitHub配置');
+            bindEvent('sync-to-github-btn', 'click', saveDataToGitHub, '同步到GitHub');
+            bindEvent('sync-from-github-btn', 'click', loadDataFromGitHub, '从GitHub加载');
+            bindEvent('refresh-btn', 'click', refreshData, '刷新数据');
+            bindEvent('auto-refresh-toggle', 'click', toggleAutoRefresh, '切换自动刷新');
+            bindEvent('theme-toggle', 'click', toggleTheme, '切换主题');
+            bindEvent('assets-detail-title', 'click', toggleAssetsDetail, '切换资产详情');
+            bindEvent('show-api-btn', 'click', toggleApiConfig, '显示/隐藏API配置');
             
             // 系统设置变更
-            document.getElementById('auto-sync').addEventListener('change', saveSystemConfig);
-            document.getElementById('language-select').addEventListener('change', saveSystemConfig);
-            document.getElementById('alert-sound-select').addEventListener('change', saveSystemConfig);
-            document.getElementById('refresh-interval').addEventListener('change', saveSystemConfig);
+            bindEvent('auto-sync', 'change', saveSystemConfig, '自动同步设置变更');
+            bindEvent('language-select', 'change', saveSystemConfig, '语言设置变更');
+            bindEvent('alert-sound-select', 'change', saveSystemConfig, '提醒铃声设置变更');
+            bindEvent('refresh-interval', 'change', saveSystemConfig, '刷新间隔设置变更');
             
             // 动态生成的按钮
-            document.addEventListener('click', function(e) {
-                if (e.target && e.target.id === 'unit-toggle') {
-                    toggleUnit();
-                }
-                if (e.target && e.target.classList.contains('trend-btn')) {
-                    setTrendPeriod(e.target.getAttribute('data-period'));
-                }
-            });
+            try {
+                document.addEventListener('click', function(e) {
+                    if (e.target && e.target.id === 'unit-toggle') {
+                        console.log('%c动态按钮点击: unit-toggle', 'background: #222; color: #bada55; padding: 2px 5px; border-radius: 3px;');
+                        toggleUnit();
+                    }
+                    if (e.target && e.target.classList.contains('trend-btn')) {
+                        console.log('%c动态按钮点击: trend-btn', 'background: #222; color: #bada55; padding: 2px 5px; border-radius: 3px;');
+                        setTrendPeriod(e.target.getAttribute('data-period'));
+                    }
+                });
+                console.log('✅ 动态按钮事件委托绑定成功');
+            } catch (error) {
+                console.error('❌ 动态按钮事件委托绑定失败:', error);
+            }
             
             // 如果配置了GitHub Token，尝试连接
             if (githubConfig.token) {
@@ -2071,7 +2150,7 @@
                 }, 1000);
             }
             
-            console.log('应用初始化完成，所有事件已绑定');
+            console.log('%c应用初始化完成', 'color: blue; font-weight: bold');
         }
 
         // 确保在DOM加载完成后初始化
