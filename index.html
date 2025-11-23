@@ -269,7 +269,12 @@
         .change { display: flex; align-items: center; font-size: 14px; margin-bottom: 10px; }
         .positive { color: var(--positive-color); }
         .negative { color: var(--negative-color); }
-        .chart-container { height: 200px; margin-top: 15px; }
+        .chart-container { 
+            height: 200px; 
+            margin-top: 15px; 
+            position: relative; /* 添加相对定位 */
+            width: 100%; /* 确保宽度100% */
+        }
         .trend-controls { display: flex; gap: 10px; margin-bottom: 15px; }
         .trend-btn { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.2s ease; }
         .trend-btn.active { background: var(--accent-color); color: var(--bg-primary); border-color: var(--accent-color); }
@@ -605,8 +610,11 @@
                     </small>
                 </div>
                 <div class="api-input-group">
-                    <label for="github-gist-id">Gist ID (自动生成)</label>
-                    <input type="text" id="github-gist-id" placeholder="首次上传后自动生成" readonly>
+                    <label for="github-gist-id">Gist ID</label>
+                    <input type="text" id="github-gist-id" placeholder="输入已存在的Gist ID或留空自动创建">
+                    <small style="color: var(--text-secondary); font-size: 12px; display: block; margin-top: 5px;">
+                        如果您已有Gist，请输入其ID；否则留空将自动创建新的Gist。
+                    </small>
                 </div>
             </div>
 
@@ -669,7 +677,10 @@
                             <button class="trend-btn" onclick="App.setTrendPeriod('30d')">1M</button>
                         </div>
                         <div class="chart-container">
-                            <canvas id="trend-chart"></canvas>
+                            <!-- 添加一个包装容器来限制图表宽度 -->
+                            <div style="width: 100%; height: 100%; position: relative;">
+                                <canvas id="trend-chart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -694,7 +705,10 @@
                         </label>
                     </div>
                     <div class="chart-container">
-                        <canvas id="distribution-chart"></canvas>
+                        <!-- 添加一个包装容器来限制图表宽度 -->
+                        <div style="width: 100%; height: 100%; position: relative;">
+                            <canvas id="distribution-chart"></canvas>
+                        </div>
                     </div>
                 </div>
                 
@@ -1227,13 +1241,19 @@
             // 保存备份配置
             saveBackupConfig() {
                 const token = document.getElementById('github-token').value.trim();
+                const gistId = document.getElementById('github-gist-id').value.trim();
                 
                 if (token) {
                     this.config.github.token = token;
+                    // 只有在有输入时才更新gistId，否则保持原值
+                    if (gistId) {
+                        this.config.github.gistId = gistId;
+                    }
                     localStorage.setItem('githubConfig', JSON.stringify(this.config.github));
+                    this.showGithubStatus('备份配置保存成功', 'success');
+                } else {
+                    this.showGithubStatus('请输入GitHub Token', 'error');
                 }
-                
-                this.showGithubStatus('备份配置保存成功', 'success');
             },
 
             // 导出数据到文件
@@ -1410,8 +1430,10 @@
 
             // 从GitHub加载 (改进的错误处理)
             async loadFromGitHub() {
-                if (!this.config.github.token || !this.config.github.gistId) {
-                    this.showGithubStatus('请先配置GitHub并上传数据', 'error');
+                const gistId = document.getElementById('github-gist-id').value.trim();
+                
+                if (!this.config.github.token || !gistId) {
+                    this.showGithubStatus('请先配置GitHub Token并输入Gist ID', 'error');
                     return;
                 }
 
@@ -1422,7 +1444,7 @@
                 try {
                     this.showGithubStatus('正在从GitHub加载历史数据...', 'success');
                     
-                    const response = await fetch(`https://api.github.com/gists/${this.config.github.gistId}`, {
+                    const response = await fetch(`https://api.github.com/gists/${gistId}`, {
                         headers: {
                             'Authorization': `token ${this.config.github.token}`
                         }
@@ -2154,7 +2176,7 @@
                 return types[type] || type;
             },
 
-            // 图表初始化
+            // 图表初始化 - 修复图表宽度问题
             initCharts() {
                 // 趋势图表
                 const trendCtx = document.getElementById('trend-chart')?.getContext('2d');
@@ -2237,6 +2259,16 @@
                         }
                     });
                 }
+                
+                // 强制图表重新调整大小以适应容器
+                setTimeout(() => {
+                    if (this.trendChart) {
+                        this.trendChart.resize();
+                    }
+                    if (this.distributionChart) {
+                        this.distributionChart.resize();
+                    }
+                }, 100);
             },
 
             // 更新分布图表
