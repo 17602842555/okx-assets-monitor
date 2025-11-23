@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OKX资产监控 v2.5</title>
     
-    <!-- 缓存控制 -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
     <!-- 图表库 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
@@ -695,7 +690,7 @@
             USDBTC: 0.00002
         };
 
-        // 历史数据存储 - 修复数据持久化问题
+        // 历史数据存储
         let historicalData = [];
 
         // 多语言文本
@@ -757,35 +752,6 @@
                 'alerts': 'Price Alerts',
                 'lightTheme': 'Light Mode',
                 'darkTheme': 'Dark Mode'
-            },
-            'ja-JP': {
-                'appTitle': 'OKX資産モニター v2.5',
-                'lastUpdate': '最終更新',
-                'totalAssets': '総資産概要',
-                'distribution': '資産分布',
-                'trend': '資産トレンド',
-                'assetsDetail': '資産詳細',
-                'positions': 'ポジション詳細',
-                'change24h': '24時間変化',
-                'change7d': '7日間変化',
-                'change30d': '1ヶ月変化',
-                'noAssetsData': 'APIを設定してデータを更新してください',
-                'noPositionsData': 'APIを設定してデータを更新してください',
-                'showSettings': '設定表示',
-                'refreshData': 'データ更新',
-                'autoRefresh': '自動更新有効',
-                'stopAutoRefresh': '自動更新無効',
-                'instrument': '契約',
-                'direction': '方向',
-                'position': 'ポジション量',
-                'markPrice': 'マーク価格',
-                'avgPrice': '平均建値',
-                'liqPrice': '清算価格',
-                'pnl': '評価損益',
-                'pnlPercent': '収益率',
-                'alerts': '価格アラート',
-                'lightTheme': 'ライトモード',
-                'darkTheme': 'ダークモード'
             }
         };
 
@@ -816,6 +782,8 @@
         // 初始化图表
         let distributionChart, trendChart;
 
+        // === 核心功能函数 ===
+
         // 加载所有配置和数据
         function loadAllConfig() {
             // 加载系统配置
@@ -842,7 +810,7 @@
                 priceAlerts = JSON.parse(savedPriceAlerts);
             }
 
-            // 加载历史数据 - 修复数据持久化问题
+            // 加载历史数据
             const savedHistoricalData = localStorage.getItem('okxHistoricalData');
             if (savedHistoricalData) {
                 try {
@@ -891,13 +859,6 @@
             }
         }
 
-        // 切换主题
-        function toggleTheme() {
-            systemConfig.theme = systemConfig.theme === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('systemConfig', JSON.stringify(systemConfig));
-            updateTheme();
-        }
-
         // 更新折叠状态
         function updateCollapsible() {
             const content = document.getElementById('assets-detail-content');
@@ -910,13 +871,6 @@
                 content.classList.remove('collapsed');
                 title.classList.remove('collapsed');
             }
-        }
-
-        // 切换折叠状态
-        function toggleAssetsDetail() {
-            systemConfig.assetsDetailCollapsed = !systemConfig.assetsDetailCollapsed;
-            localStorage.setItem('systemConfig', JSON.stringify(systemConfig));
-            updateCollapsible();
         }
 
         // 更新语言
@@ -1011,13 +965,6 @@
                     const data = await response.json();
                     exchangeRates.USDCNY = data.rates.CNY || 7.2;
                 }
-                
-                const btcResponse = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
-                if (btcResponse.ok) {
-                    const btcData = await btcResponse.json();
-                    const btcPrice = parseFloat(btcData.price);
-                    exchangeRates.USDBTC = 1 / btcPrice;
-                }
             } catch (error) {
                 console.log('获取汇率失败，使用默认值');
             }
@@ -1033,60 +980,6 @@
             localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
             
             showStatus('GitHub配置已保存', 'success');
-        }
-
-        // GitHub同步功能
-        async function syncToGitHub() {
-            if (!githubConfig.token) {
-                throw new Error('请先配置GitHub Token');
-            }
-            
-            const dataToSync = {
-                historicalData: historicalData,
-                priceAlerts: priceAlerts,
-                syncTime: new Date().toISOString(),
-                version: '2.5'
-            };
-            
-            const gistId = githubConfig.gistId;
-            const gistData = {
-                description: 'OKX资产监控数据',
-                public: false,
-                files: {
-                    'okx-data.json': {
-                        content: JSON.stringify(dataToSync)
-                    }
-                }
-            };
-            
-            const url = gistId ? 
-                `https://api.github.com/gists/${gistId}` :
-                'https://api.github.com/gists';
-            
-            const method = gistId ? 'PATCH' : 'POST';
-            
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Authorization': `token ${githubConfig.token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(gistData)
-            });
-            
-            if (!response.ok) {
-                throw new Error(`GitHub API错误: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            
-            if (!gistId) {
-                githubConfig.gistId = result.id;
-                localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
-                document.getElementById('github-gist').value = result.id;
-            }
-            
-            return result;
         }
 
         // 播放提醒声音
@@ -1148,14 +1041,6 @@
             }
         }
 
-        function toggleAutoRefresh() {
-            if (systemConfig.autoRefresh) {
-                stopAutoRefresh();
-            } else {
-                startAutoRefresh();
-            }
-        }
-
         // 保存系统配置
         function saveSystemConfig() {
             systemConfig.language = document.getElementById('language-select').value;
@@ -1193,10 +1078,6 @@
             showStatus('API配置已清除', 'success');
         }
 
-        function showApiConfig() {
-            // 配置面板默认就是显示的，不需要额外操作
-        }
-
         // 单位转换函数
         function convertToUnit(value, unit) {
             switch(unit) {
@@ -1231,15 +1112,6 @@
                     <button class="unit-toggle" id="unit-toggle">切换单位</button>
                 `;
             }
-        }
-
-        // 切换单位
-        function toggleUnit() {
-            const units = ['USD', 'CNY', 'BTC'];
-            currentUnit = units[(units.indexOf(currentUnit) + 1) % units.length];
-            updateTotalAssetsDisplay();
-            updateAssetsBreakdown();
-            updatePositions();
         }
 
         // 核心API功能
@@ -1675,8 +1547,7 @@
                     datasets: [{ 
                         data: [], 
                         backgroundColor: [
-                            '#00d2d3', '#00c087', '#ff5b5a', '#ffc542', '#8a94a6',
-                            '#2a3345', '#232c41', '#1a2235', '#0d1421', '#8a94a6'
+                            '#00d2d3', '#00c087', '#ff5b5a', '#ffc542', '#8a94a6'
                         ] 
                     }] 
                 },
@@ -1793,15 +1664,54 @@
             updateTrendChart();
         }
 
-        // 初始化函数
+        // === 事件处理函数 ===
+
+        // 切换主题
+        function toggleTheme() {
+            systemConfig.theme = systemConfig.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('systemConfig', JSON.stringify(systemConfig));
+            updateTheme();
+        }
+
+        // 切换折叠状态
+        function toggleAssetsDetail() {
+            systemConfig.assetsDetailCollapsed = !systemConfig.assetsDetailCollapsed;
+            localStorage.setItem('systemConfig', JSON.stringify(systemConfig));
+            updateCollapsible();
+        }
+
+        // 切换单位
+        function toggleUnit() {
+            const units = ['USD', 'CNY', 'BTC'];
+            currentUnit = units[(units.indexOf(currentUnit) + 1) % units.length];
+            updateTotalAssetsDisplay();
+            updateAssetsBreakdown();
+            updatePositions();
+        }
+
+        // 切换自动刷新
+        function toggleAutoRefresh() {
+            if (systemConfig.autoRefresh) {
+                stopAutoRefresh();
+            } else {
+                startAutoRefresh();
+            }
+        }
+
+        // 显示API配置
+        function showApiConfig() {
+            // 配置面板默认就是显示的，不需要额外操作
+        }
+
+        // === 初始化函数 ===
         function init() {
             console.log('初始化应用...');
             
-            // 加载所有配置和数据
-            loadAllConfig();
-            
             // 初始化图表
             initCharts();
+            
+            // 加载所有配置和数据
+            loadAllConfig();
             
             // 更新界面
             updateTotalAssetsDisplay();
@@ -1813,19 +1723,18 @@
             // 每5分钟更新一次汇率
             setInterval(fetchExchangeRates, 5 * 60 * 1000);
             
-            // 绑定事件
-            document.getElementById('save-api').addEventListener('click', function() {
-                saveApiConfig();
-                saveSystemConfig();
-            });
+            // === 绑定事件监听器 ===
+            
+            // 主要按钮
+            document.getElementById('save-api').addEventListener('click', saveApiConfig);
             document.getElementById('clear-api').addEventListener('click', clearApiConfig);
             document.getElementById('save-github-btn').addEventListener('click', saveGitHubConfig);
             document.getElementById('refresh-btn').addEventListener('click', refreshData);
             document.getElementById('auto-refresh-toggle').addEventListener('click', toggleAutoRefresh);
-            document.getElementById('show-api-btn').addEventListener('click', showApiConfig);
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('assets-detail-title').addEventListener('click', toggleAssetsDetail);
             
+            // 动态生成的按钮
             document.addEventListener('click', function(e) {
                 if (e.target && e.target.id === 'unit-toggle') {
                     toggleUnit();
@@ -1835,10 +1744,15 @@
                 }
             });
             
-            console.log('应用初始化完成');
+            console.log('应用初始化完成，所有事件已绑定');
         }
 
-        document.addEventListener('DOMContentLoaded', init);
+        // 确保在DOM加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>
