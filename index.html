@@ -1482,24 +1482,141 @@
             const distributionCtx = document.getElementById('distribution-chart').getContext('2d');
             distributionChart = new Chart(distributionCtx, {
                 type: 'doughnut',
-                data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
-                options: { responsive: true, maintainAspectRatio: false }
+                data: { 
+                    labels: [], 
+                    datasets: [{ 
+                        data: [], 
+                        backgroundColor: [
+                            '#00d2d3', '#00c087', '#ff5b5a', '#ffc542', '#8a94a6',
+                            '#2a3345', '#232c41', '#1a2235', '#0d1421', '#8a94a6'
+                        ] 
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#eaecef',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
             });
 
             const trendCtx = document.getElementById('trend-chart').getContext('2d');
             trendChart = new Chart(trendCtx, {
                 type: 'line',
-                data: { labels: [], datasets: [{ data: [], borderColor: '#00d2d3', backgroundColor: 'rgba(0, 210, 211, 0.1)' }] },
-                options: { responsive: true, maintainAspectRatio: false }
+                data: { 
+                    labels: [], 
+                    datasets: [{ 
+                        data: [], 
+                        borderColor: '#00d2d3', 
+                        backgroundColor: 'rgba(0, 210, 211, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(138, 148, 166, 0.1)'
+                            },
+                            ticks: {
+                                color: '#8a94a6'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(138, 148, 166, 0.1)'
+                            },
+                            ticks: {
+                                color: '#8a94a6'
+                            }
+                        }
+                    }
+                }
             });
         }
 
         function updateCharts() {
+            // 更新资产分布图
             if (assetsData.breakdown && assetsData.breakdown.length > 0) {
                 distributionChart.data.labels = assetsData.breakdown.map(asset => asset.name);
                 distributionChart.data.datasets[0].data = assetsData.breakdown.map(asset => parseFloat(asset.percentage));
                 distributionChart.update();
             }
+            
+            // 更新资产趋势图
+            updateTrendChart();
+        }
+
+        function updateTrendChart() {
+            const hourlyData = JSON.parse(localStorage.getItem('okxHourlyData') || '[]');
+            
+            if (hourlyData.length === 0) {
+                // 如果没有数据，显示提示
+                trendChart.data.labels = ['暂无数据'];
+                trendChart.data.datasets[0].data = [0];
+                trendChart.update();
+                return;
+            }
+            
+            // 根据当前选择的周期筛选数据
+            let filteredData = [];
+            const now = new Date();
+            
+            switch (currentTrendPeriod) {
+                case '24h':
+                    const oneDayAgo = now.getTime() - 24 * 60 * 60 * 1000;
+                    filteredData = hourlyData.filter(item => item.timestamp >= oneDayAgo);
+                    break;
+                case '7d':
+                    const oneWeekAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+                    filteredData = hourlyData.filter(item => item.timestamp >= oneWeekAgo);
+                    break;
+                case '30d':
+                    const oneMonthAgo = now.getTime() - 30 * 24 * 60 * 60 * 1000;
+                    filteredData = hourlyData.filter(item => item.timestamp >= oneMonthAgo);
+                    break;
+                default:
+                    filteredData = hourlyData;
+            }
+            
+            // 如果筛选后没有数据，使用全部数据
+            if (filteredData.length === 0) {
+                filteredData = hourlyData;
+            }
+            
+            // 准备图表数据
+            const labels = filteredData.map(item => {
+                const date = new Date(item.timestamp);
+                if (currentTrendPeriod === '24h') {
+                    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+                } else {
+                    return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+                }
+            });
+            
+            const data = filteredData.map(item => item.total);
+            
+            // 更新图表
+            trendChart.data.labels = labels;
+            trendChart.data.datasets[0].data = data;
+            trendChart.update();
         }
 
         function updateTime() {
@@ -1559,6 +1676,7 @@
             currentTrendPeriod = period;
             document.querySelectorAll('.trend-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.trend-btn[data-period="${period}"]`).classList.add('active');
+            updateTrendChart();
         }
 
         function toggleAutoRefresh() {
@@ -1605,6 +1723,9 @@
             loadApiConfig();
             updateTotalAssetsDisplay();
             updateTime();
+            
+            // 初始化趋势图
+            updateTrendChart();
             
             document.getElementById('save-api').addEventListener('click', saveApiConfig);
             document.getElementById('clear-api').addEventListener('click', clearApiConfig);
