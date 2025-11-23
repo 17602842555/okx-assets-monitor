@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OKX资产监控 v2.4</title>
+    <title>OKX资产监控 v2.5</title>
     
     <!-- 缓存控制 -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -214,10 +214,6 @@
         
         .api-config {
             margin-bottom: 30px;
-        }
-        
-        .api-config.hidden {
-            display: none;
         }
         
         .api-input-group {
@@ -465,6 +461,28 @@
             margin-left: 10px;
         }
         
+        /* GitHub配置样式 */
+        .github-config {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(42, 51, 69, 0.5);
+            border-radius: 6px;
+        }
+        
+        .light-theme .github-config {
+            background: rgba(225, 229, 233, 0.5);
+        }
+        
+        .github-config input {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+        
         @media (max-width: 768px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -500,13 +518,13 @@
     <div class="container">
         <header>
             <div style="display: flex; align-items: center;">
-                <h1 id="app-title">OKX资产监控 v2.4</h1>
+                <h1 id="app-title">OKX资产监控 v2.5</h1>
                 <button class="theme-toggle" id="theme-toggle">浅色模式</button>
             </div>
             <div class="last-update"><span id="last-update-text">最后更新</span>: <span id="update-time">--:--:--</span></div>
         </header>
         
-        <div class="api-config card" id="api-config">
+        <div class="card" id="api-config">
             <div class="card-title">API配置</div>
             <div class="api-input-group">
                 <label for="api-key">API Key</label>
@@ -519,6 +537,17 @@
             <div class="api-input-group">
                 <label for="passphrase">Passphrase</label>
                 <input type="password" id="passphrase" placeholder="请输入您的Passphrase">
+            </div>
+            
+            <!-- GitHub同步配置 -->
+            <div class="settings-panel">
+                <div class="card-title">GitHub数据同步</div>
+                <div class="github-config">
+                    <input type="text" id="github-token" placeholder="GitHub Personal Access Token">
+                    <input type="text" id="github-gist" placeholder="Gist ID (留空自动创建)">
+                    <button class="save-btn" id="save-github-btn" style="width: 100%; margin-top: 10px;">保存GitHub配置</button>
+                </div>
+                <div class="sync-status" id="sync-status" style="margin-top: 10px; font-size: 12px;"></div>
             </div>
             
             <!-- 系统设置面板 -->
@@ -575,7 +604,7 @@
                     $ --
                     <button class="unit-toggle" id="unit-toggle">切换单位</button>
                 </div>
-                <div class="change" id="change-24h">
+                <div class="change" id="change-display">
                     <span id="change-text">24小时变化</span>: --
                 </div>
                 <div style="margin-top: 15px;">
@@ -654,19 +683,25 @@
             assetsDetailCollapsed: false
         };
 
+        // GitHub配置
+        let githubConfig = {
+            token: '',
+            gistId: ''
+        };
+
         // 汇率数据
         let exchangeRates = {
             USDCNY: 7.2,
             USDBTC: 0.00002
         };
 
-        // 历史数据存储
-        let historicalData = JSON.parse(localStorage.getItem('okxHistoricalData') || '[]');
+        // 历史数据存储 - 修复数据持久化问题
+        let historicalData = [];
 
         // 多语言文本
         const translations = {
             'zh-CN': {
-                'appTitle': 'OKX资产监控 v2.4',
+                'appTitle': 'OKX资产监控 v2.5',
                 'lastUpdate': '最后更新',
                 'totalAssets': '总资产概览',
                 'distribution': '资产分布',
@@ -674,6 +709,8 @@
                 'assetsDetail': '资产详情',
                 'positions': '持仓详情',
                 'change24h': '24小时变化',
+                'change7d': '7天变化',
+                'change30d': '1月变化',
                 'noAssetsData': '请配置API并刷新数据',
                 'noPositionsData': '请配置API并刷新数据',
                 'showSettings': '显示设置',
@@ -693,7 +730,7 @@
                 'darkTheme': '深色模式'
             },
             'en-US': {
-                'appTitle': 'OKX Asset Monitor v2.4',
+                'appTitle': 'OKX Asset Monitor v2.5',
                 'lastUpdate': 'Last Update',
                 'totalAssets': 'Total Assets',
                 'distribution': 'Asset Distribution',
@@ -701,6 +738,8 @@
                 'assetsDetail': 'Asset Details',
                 'positions': 'Position Details',
                 'change24h': '24H Change',
+                'change7d': '7D Change',
+                'change30d': '1M Change',
                 'noAssetsData': 'Please configure API and refresh data',
                 'noPositionsData': 'Please configure API and refresh data',
                 'showSettings': 'Show Settings',
@@ -720,7 +759,7 @@
                 'darkTheme': 'Dark Mode'
             },
             'ja-JP': {
-                'appTitle': 'OKX資産モニター v2.4',
+                'appTitle': 'OKX資産モニター v2.5',
                 'lastUpdate': '最終更新',
                 'totalAssets': '総資産概要',
                 'distribution': '資産分布',
@@ -728,6 +767,8 @@
                 'assetsDetail': '資産詳細',
                 'positions': 'ポジション詳細',
                 'change24h': '24時間変化',
+                'change7d': '7日間変化',
+                'change30d': '1ヶ月変化',
                 'noAssetsData': 'APIを設定してデータを更新してください',
                 'noPositionsData': 'APIを設定してデータを更新してください',
                 'showSettings': '設定表示',
@@ -758,6 +799,8 @@
         let assetsData = {
             total: 0,
             change24h: 0,
+            change7d: 0,
+            change30d: 0,
             breakdown: [],
             positions: []
         };
@@ -766,25 +809,65 @@
         let currentUnit = 'USD';
         let currentTrendPeriod = '24h';
         let isUpdating = false;
-        let priceAlerts = JSON.parse(localStorage.getItem('priceAlerts') || '{}');
+        let priceAlerts = {};
+        let lastDataSaveTime = 0;
+        const DATA_SAVE_INTERVAL = 15 * 60 * 1000; // 15分钟
 
         // 初始化图表
         let distributionChart, trendChart;
 
-        // 加载系统配置
-        function loadSystemConfig() {
-            const saved = localStorage.getItem('systemConfig');
-            if (saved) {
-                systemConfig = JSON.parse(saved);
-                updateSystemUI();
+        // 加载所有配置和数据
+        function loadAllConfig() {
+            // 加载系统配置
+            const savedSystemConfig = localStorage.getItem('systemConfig');
+            if (savedSystemConfig) {
+                systemConfig = JSON.parse(savedSystemConfig);
             }
+
+            // 加载GitHub配置
+            const savedGithubConfig = localStorage.getItem('githubConfig');
+            if (savedGithubConfig) {
+                githubConfig = JSON.parse(savedGithubConfig);
+            }
+
+            // 加载API配置
+            const savedApiConfig = localStorage.getItem('okxApiConfig');
+            if (savedApiConfig) {
+                apiConfig = JSON.parse(savedApiConfig);
+            }
+
+            // 加载价格提醒
+            const savedPriceAlerts = localStorage.getItem('priceAlerts');
+            if (savedPriceAlerts) {
+                priceAlerts = JSON.parse(savedPriceAlerts);
+            }
+
+            // 加载历史数据 - 修复数据持久化问题
+            const savedHistoricalData = localStorage.getItem('okxHistoricalData');
+            if (savedHistoricalData) {
+                try {
+                    historicalData = JSON.parse(savedHistoricalData);
+                    console.log('加载历史数据:', historicalData.length, '条记录');
+                } catch (e) {
+                    console.error('历史数据加载失败:', e);
+                    historicalData = [];
+                }
+            }
+
+            updateSystemUI();
         }
 
         // 更新系统UI
         function updateSystemUI() {
+            // 更新表单值
             document.getElementById('language-select').value = systemConfig.language;
             document.getElementById('alert-sound-select').value = systemConfig.alertSound;
             document.getElementById('refresh-interval').value = systemConfig.refreshInterval;
+            document.getElementById('github-token').value = githubConfig.token || '';
+            document.getElementById('github-gist').value = githubConfig.gistId || '';
+            document.getElementById('api-key').value = apiConfig.apiKey || '';
+            document.getElementById('secret-key').value = apiConfig.secretKey || '';
+            document.getElementById('passphrase').value = apiConfig.passphrase || '';
             
             updateTheme();
             updateCollapsible();
@@ -841,62 +924,94 @@
             const lang = systemConfig.language;
             const texts = translations[lang];
             
-            // 更新所有文本
-            const elements = {
-                'app-title': texts.appTitle,
-                'last-update-text': texts.lastUpdate,
-                'total-assets-title': texts.totalAssets,
-                'distribution-title': texts.distribution,
-                'trend-title': texts.trend,
-                'assets-detail-title': texts.assetsDetail,
-                'positions-title': texts.positions,
-                'change-text': texts.change24h,
-                'no-assets-data': texts.noAssetsData,
-                'no-positions-data': texts.noPositionsData,
-                'show-api-btn': texts.showSettings,
-                'refresh-btn': texts.refreshData,
-                'th-instrument': texts.instrument,
-                'th-direction': texts.direction,
-                'th-position': texts.position,
-                'th-mark-price': texts.markPrice,
-                'th-avg-price': texts.avgPrice,
-                'th-liq-price': texts.liqPrice,
-                'th-pnl': texts.pnl,
-                'th-pnl-percent': texts.pnlPercent,
-                'th-alerts': texts.alerts
-            };
+            document.getElementById('app-title').textContent = texts.appTitle;
+            document.getElementById('last-update-text').textContent = texts.lastUpdate;
+            document.getElementById('total-assets-title').textContent = texts.totalAssets;
+            document.getElementById('distribution-title').textContent = texts.distribution;
+            document.getElementById('trend-title').textContent = texts.trend;
+            document.getElementById('assets-detail-title').textContent = texts.assetsDetail;
+            document.getElementById('positions-title').textContent = texts.positions;
             
-            Object.keys(elements).forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.textContent = elements[id];
-                }
-            });
+            // 根据当前趋势周期更新变化文本
+            updateChangeText();
             
-            // 更新自动刷新按钮
+            document.getElementById('no-assets-data').textContent = texts.noAssetsData;
+            document.getElementById('no-positions-data').textContent = texts.noPositionsData;
+            document.getElementById('show-api-btn').textContent = texts.showSettings;
+            document.getElementById('refresh-btn').textContent = texts.refreshData;
+            
             const autoRefreshBtn = document.getElementById('auto-refresh-toggle');
-            if (autoRefreshBtn) {
-                autoRefreshBtn.textContent = systemConfig.autoRefresh ? texts.stopAutoRefresh : texts.autoRefresh;
+            autoRefreshBtn.textContent = systemConfig.autoRefresh ? texts.stopAutoRefresh : texts.autoRefresh;
+            
+            // 更新表格标题
+            document.getElementById('th-instrument').textContent = texts.instrument;
+            document.getElementById('th-direction').textContent = texts.direction;
+            document.getElementById('th-position').textContent = texts.position;
+            document.getElementById('th-mark-price').textContent = texts.markPrice;
+            document.getElementById('th-avg-price').textContent = texts.avgPrice;
+            document.getElementById('th-liq-price').textContent = texts.liqPrice;
+            document.getElementById('th-pnl').textContent = texts.pnl;
+            document.getElementById('th-pnl-percent').textContent = texts.pnlPercent;
+            document.getElementById('th-alerts').textContent = texts.alerts;
+            
+            document.getElementById('theme-toggle').textContent = 
+                systemConfig.theme === 'dark' ? texts.lightTheme : texts.darkTheme;
+        }
+
+        // 更新变化文本
+        function updateChangeText() {
+            const texts = translations[systemConfig.language];
+            let changeText = texts.change24h;
+            
+            switch(currentTrendPeriod) {
+                case '24h': changeText = texts.change24h; break;
+                case '7d': changeText = texts.change7d; break;
+                case '30d': changeText = texts.change30d; break;
             }
             
-            // 更新主题按钮
-            const themeBtn = document.getElementById('theme-toggle');
-            if (themeBtn) {
-                themeBtn.textContent = systemConfig.theme === 'dark' ? texts.lightTheme : texts.darkTheme;
+            document.getElementById('change-text').textContent = changeText;
+            updateChangeDisplay();
+        }
+
+        // 更新变化显示
+        function updateChangeDisplay() {
+            const changeElement = document.getElementById('change-display');
+            let changeValue = 0;
+            let changeText = '';
+            
+            switch(currentTrendPeriod) {
+                case '24h':
+                    changeValue = assetsData.change24h || 0;
+                    changeText = translations[systemConfig.language].change24h;
+                    break;
+                case '7d':
+                    changeValue = assetsData.change7d || 0;
+                    changeText = translations[systemConfig.language].change7d;
+                    break;
+                case '30d':
+                    changeValue = assetsData.change30d || 0;
+                    changeText = translations[systemConfig.language].change30d;
+                    break;
             }
+            
+            const changeClass = changeValue >= 0 ? 'positive' : 'negative';
+            const changeSymbol = changeValue >= 0 ? '+' : '';
+            
+            changeElement.innerHTML = `
+                <span id="change-text">${changeText}</span>: 
+                <span class="${changeClass}">${changeSymbol}${formatNumber(changeValue)}%</span>
+            `;
         }
 
         // 获取实时汇率
         async function fetchExchangeRates() {
             try {
-                // 使用免费的汇率API
                 const response = await fetch('https://api.exchangerate.host/latest?base=USD');
                 if (response.ok) {
                     const data = await response.json();
                     exchangeRates.USDCNY = data.rates.CNY || 7.2;
                 }
                 
-                // 获取BTC价格
                 const btcResponse = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
                 if (btcResponse.ok) {
                     const btcData = await btcResponse.json();
@@ -906,6 +1021,72 @@
             } catch (error) {
                 console.log('获取汇率失败，使用默认值');
             }
+        }
+
+        // GitHub配置保存
+        function saveGitHubConfig() {
+            const token = document.getElementById('github-token').value.trim();
+            const gistId = document.getElementById('github-gist').value.trim();
+            
+            githubConfig.token = token;
+            githubConfig.gistId = gistId;
+            localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
+            
+            showStatus('GitHub配置已保存', 'success');
+        }
+
+        // GitHub同步功能
+        async function syncToGitHub() {
+            if (!githubConfig.token) {
+                throw new Error('请先配置GitHub Token');
+            }
+            
+            const dataToSync = {
+                historicalData: historicalData,
+                priceAlerts: priceAlerts,
+                syncTime: new Date().toISOString(),
+                version: '2.5'
+            };
+            
+            const gistId = githubConfig.gistId;
+            const gistData = {
+                description: 'OKX资产监控数据',
+                public: false,
+                files: {
+                    'okx-data.json': {
+                        content: JSON.stringify(dataToSync)
+                    }
+                }
+            };
+            
+            const url = gistId ? 
+                `https://api.github.com/gists/${gistId}` :
+                'https://api.github.com/gists';
+            
+            const method = gistId ? 'PATCH' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Authorization': `token ${githubConfig.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(gistData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`GitHub API错误: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (!gistId) {
+                githubConfig.gistId = result.id;
+                localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
+                document.getElementById('github-gist').value = result.id;
+            }
+            
+            return result;
         }
 
         // 播放提醒声音
@@ -984,6 +1165,36 @@
             localStorage.setItem('systemConfig', JSON.stringify(systemConfig));
             updateSystemUI();
             showStatus('系统设置已保存', 'success');
+        }
+
+        // 保存API配置
+        function saveApiConfig() {
+            const apiKey = document.getElementById('api-key').value.trim();
+            const secretKey = document.getElementById('secret-key').value.trim();
+            const passphrase = document.getElementById('passphrase').value.trim();
+            
+            if (!apiKey || !secretKey || !passphrase) {
+                showStatus('请填写完整的API配置信息', 'error');
+                return;
+            }
+            
+            apiConfig = { apiKey, secretKey, passphrase };
+            localStorage.setItem('okxApiConfig', JSON.stringify(apiConfig));
+            showStatus('API配置已保存', 'success');
+            refreshData();
+        }
+
+        function clearApiConfig() {
+            document.getElementById('api-key').value = '';
+            document.getElementById('secret-key').value = '';
+            document.getElementById('passphrase').value = '';
+            apiConfig = { apiKey: '', secretKey: '', passphrase: '' };
+            localStorage.removeItem('okxApiConfig');
+            showStatus('API配置已清除', 'success');
+        }
+
+        function showApiConfig() {
+            // 配置面板默认就是显示的，不需要额外操作
         }
 
         // 单位转换函数
@@ -1330,16 +1541,23 @@
             }
         }
 
-        // 保存历史数据
+        // 保存历史数据 - 改为15分钟间隔
         function saveHistoricalData(total) {
-            const now = new Date();
+            const now = Date.now();
+            
+            // 检查是否达到15分钟间隔
+            if (now - lastDataSaveTime < DATA_SAVE_INTERVAL && historicalData.length > 0) {
+                return;
+            }
+            
             const dataPoint = {
-                timestamp: now.getTime(),
+                timestamp: now,
                 total: total,
-                time: now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+                time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
             };
             
             historicalData.push(dataPoint);
+            lastDataSaveTime = now;
             
             // 保留最近1000个数据点
             if (historicalData.length > 1000) {
@@ -1347,6 +1565,41 @@
             }
             
             localStorage.setItem('okxHistoricalData', JSON.stringify(historicalData));
+            console.log('保存历史数据，当前记录数:', historicalData.length);
+        }
+
+        // 计算资产变化
+        function calculateAssetChanges(currentTotal) {
+            const now = Date.now();
+            const oneDayAgo = now - 24 * 60 * 60 * 1000;
+            const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
+            const oneMonthAgo = now - 30 * 24 * 60 * 60 * 1000;
+            
+            let dayAgoValue = currentTotal;
+            let weekAgoValue = currentTotal;
+            let monthAgoValue = currentTotal;
+            
+            // 查找历史数据
+            for (let i = historicalData.length - 1; i >= 0; i--) {
+                const data = historicalData[i];
+                if (data.timestamp <= oneDayAgo && dayAgoValue === currentTotal) {
+                    dayAgoValue = data.total;
+                }
+                if (data.timestamp <= oneWeekAgo && weekAgoValue === currentTotal) {
+                    weekAgoValue = data.total;
+                }
+                if (data.timestamp <= oneMonthAgo && monthAgoValue === currentTotal) {
+                    monthAgoValue = data.total;
+                }
+                
+                if (dayAgoValue !== currentTotal && weekAgoValue !== currentTotal && monthAgoValue !== currentTotal) {
+                    break;
+                }
+            }
+            
+            assetsData.change24h = dayAgoValue > 0 ? ((currentTotal - dayAgoValue) / dayAgoValue * 100) : 0;
+            assetsData.change7d = weekAgoValue > 0 ? ((currentTotal - weekAgoValue) / weekAgoValue * 100) : 0;
+            assetsData.change30d = monthAgoValue > 0 ? ((currentTotal - monthAgoValue) / monthAgoValue * 100) : 0;
         }
 
         async function refreshData() {
@@ -1377,11 +1630,15 @@
                     // 保存历史数据
                     saveHistoricalData(assetsData.total);
                     
+                    // 计算资产变化
+                    calculateAssetChanges(assetsData.total);
+                    
                     updateTotalAssetsDisplay();
                     updateAssetsBreakdown();
                     updatePositions();
                     updateCharts();
                     updateTime();
+                    updateChangeDisplay();
                     checkPriceAlerts();
                     showStatus('数据更新成功', 'success');
                 } else {
@@ -1508,7 +1765,13 @@
                     filteredData = filteredData.filter((_, index) => index % step === 0);
                 }
                 
-                trendChart.data.labels = filteredData.map(item => item.time);
+                trendChart.data.labels = filteredData.map(item => {
+                    if (currentTrendPeriod === '24h') {
+                        return item.time;
+                    } else {
+                        return new Date(item.timestamp).toLocaleDateString();
+                    }
+                });
                 trendChart.data.datasets[0].data = filteredData.map(item => item.total);
             }
             
@@ -1526,62 +1789,21 @@
             currentTrendPeriod = period;
             document.querySelectorAll('.trend-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.trend-btn[data-period="${period}"]`).classList.add('active');
+            updateChangeText();
             updateTrendChart();
-        }
-
-        // API配置管理
-        function loadApiConfig() {
-            const savedConfig = localStorage.getItem('okxApiConfig');
-            if (savedConfig) {
-                apiConfig = JSON.parse(savedConfig);
-                document.getElementById('api-key').value = apiConfig.apiKey;
-                document.getElementById('secret-key').value = apiConfig.secretKey;
-                document.getElementById('passphrase').value = apiConfig.passphrase;
-                // 不自动隐藏配置面板，让用户手动隐藏
-            }
-        }
-
-        function saveApiConfig() {
-            const apiKey = document.getElementById('api-key').value.trim();
-            const secretKey = document.getElementById('secret-key').value.trim();
-            const passphrase = document.getElementById('passphrase').value.trim();
-            
-            if (!apiKey || !secretKey || !passphrase) {
-                showStatus('请填写完整的API配置信息', 'error');
-                return;
-            }
-            
-            apiConfig = { apiKey, secretKey, passphrase };
-            localStorage.setItem('okxApiConfig', JSON.stringify(apiConfig));
-            showStatus('API配置已保存', 'success');
-            // 不自动隐藏配置面板
-            refreshData();
-        }
-
-        function clearApiConfig() {
-            document.getElementById('api-key').value = '';
-            document.getElementById('secret-key').value = '';
-            document.getElementById('passphrase').value = '';
-            apiConfig = { apiKey: '', secretKey: '', passphrase: '' };
-            localStorage.removeItem('okxApiConfig');
-            showStatus('API配置已清除', 'success');
-        }
-
-        function showApiConfig() {
-            document.getElementById('api-config').classList.remove('hidden');
         }
 
         // 初始化函数
         function init() {
-            // 加载历史数据
-            const savedHistoricalData = localStorage.getItem('okxHistoricalData');
-            if (savedHistoricalData) {
-                historicalData = JSON.parse(savedHistoricalData);
-            }
+            console.log('初始化应用...');
             
+            // 加载所有配置和数据
+            loadAllConfig();
+            
+            // 初始化图表
             initCharts();
-            loadSystemConfig();
-            loadApiConfig();
+            
+            // 更新界面
             updateTotalAssetsDisplay();
             updateTime();
             updateTrendChart();
@@ -1597,6 +1819,7 @@
                 saveSystemConfig();
             });
             document.getElementById('clear-api').addEventListener('click', clearApiConfig);
+            document.getElementById('save-github-btn').addEventListener('click', saveGitHubConfig);
             document.getElementById('refresh-btn').addEventListener('click', refreshData);
             document.getElementById('auto-refresh-toggle').addEventListener('click', toggleAutoRefresh);
             document.getElementById('show-api-btn').addEventListener('click', showApiConfig);
@@ -1611,6 +1834,8 @@
                     setTrendPeriod(e.target.getAttribute('data-period'));
                 }
             });
+            
+            console.log('应用初始化完成');
         }
 
         document.addEventListener('DOMContentLoaded', init);
