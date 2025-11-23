@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OKX资产监控 v2.3</title>
+    <title>OKX资产监控 v2.4</title>
     
     <!-- 缓存控制 -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -22,6 +22,30 @@
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.js"></script>
     
     <style>
+        :root {
+            --bg-primary: #0d1421;
+            --bg-secondary: #1a2235;
+            --bg-tertiary: #232c41;
+            --text-primary: #eaecef;
+            --text-secondary: #8a94a6;
+            --accent-color: #00d2d3;
+            --positive-color: #00c087;
+            --negative-color: #ff5b5a;
+            --border-color: #2a3345;
+        }
+
+        .light-theme {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f8f9fa;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --accent-color: #00d2d3;
+            --positive-color: #00c087;
+            --negative-color: #ff5b5a;
+            --border-color: #e1e5e9;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -30,10 +54,11 @@
         }
         
         body {
-            background-color: #0d1421;
-            color: #eaecef;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             padding: 20px;
             min-height: 100vh;
+            transition: all 0.3s ease;
         }
         
         .container {
@@ -47,17 +72,17 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #2a3345;
+            border-bottom: 1px solid var(--border-color);
         }
         
         h1 {
             font-size: 24px;
             font-weight: 600;
-            color: #00d2d3;
+            color: var(--accent-color);
         }
         
         .last-update {
-            color: #8a94a6;
+            color: var(--text-secondary);
             font-size: 14px;
         }
         
@@ -69,15 +94,16 @@
         }
         
         .card {
-            background: #1a2235;
+            background: var(--bg-secondary);
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
         }
         
         .card-title {
             font-size: 16px;
-            color: #8a94a6;
+            color: var(--text-secondary);
             margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
@@ -94,8 +120,8 @@
         
         .unit-toggle {
             background: transparent;
-            color: #00d2d3;
-            border: 1px solid #00d2d3;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
             padding: 5px 10px;
             border-radius: 4px;
             font-size: 12px;
@@ -110,11 +136,11 @@
         }
         
         .positive {
-            color: #00c087;
+            color: var(--positive-color);
         }
         
         .negative {
-            color: #ff5b5a;
+            color: var(--negative-color);
         }
         
         .chart-container {
@@ -130,8 +156,8 @@
         
         .trend-btn {
             background: transparent;
-            color: #8a94a6;
-            border: 1px solid #2a3345;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
@@ -139,9 +165,9 @@
         }
         
         .trend-btn.active {
-            background: #00d2d3;
-            color: #0d1421;
-            border-color: #00d2d3;
+            background: var(--accent-color);
+            color: var(--bg-primary);
+            border-color: var(--accent-color);
         }
         
         .assets-breakdown {
@@ -155,7 +181,7 @@
             display: flex;
             justify-content: space-between;
             padding: 12px 15px;
-            background: #232c41;
+            background: var(--bg-tertiary);
             border-radius: 8px;
         }
         
@@ -169,7 +195,7 @@
             height: 24px;
             border-radius: 50%;
             margin-right: 10px;
-            background: #2a3345;
+            background: var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -177,8 +203,8 @@
         }
         
         .refresh-btn {
-            background: #00d2d3;
-            color: #0d1421;
+            background: var(--accent-color);
+            color: var(--bg-primary);
             border: none;
             padding: 10px 20px;
             border-radius: 6px;
@@ -188,8 +214,8 @@
         }
         
         .refresh-btn:disabled {
-            background: #2a3345;
-            color: #8a94a6;
+            background: var(--border-color);
+            color: var(--text-secondary);
             cursor: not-allowed;
         }
         
@@ -208,16 +234,16 @@
         .api-input-group label {
             display: block;
             margin-bottom: 5px;
-            color: #8a94a6;
+            color: var(--text-secondary);
         }
         
         .api-input-group input, .api-input-group select {
             width: 100%;
             padding: 10px 15px;
-            background: #232c41;
-            border: 1px solid #2a3345;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
-            color: #eaecef;
+            color: var(--text-primary);
             font-size: 14px;
         }
         
@@ -227,8 +253,8 @@
         }
         
         .save-btn {
-            background: #00d2d3;
-            color: #0d1421;
+            background: var(--accent-color);
+            color: var(--bg-primary);
             border: none;
             padding: 10px 20px;
             border-radius: 6px;
@@ -238,8 +264,8 @@
         
         .clear-btn {
             background: transparent;
-            color: #ff5b5a;
-            border: 1px solid #ff5b5a;
+            color: var(--negative-color);
+            border: 1px solid var(--negative-color);
             padding: 10px 20px;
             border-radius: 6px;
             font-weight: 600;
@@ -255,13 +281,13 @@
         
         .status.success {
             background: rgba(0, 192, 135, 0.1);
-            color: #00c087;
+            color: var(--positive-color);
             border: 1px solid rgba(0, 192, 135, 0.3);
         }
         
         .status.error {
             background: rgba(255, 91, 90, 0.1);
-            color: #ff5b5a;
+            color: var(--negative-color);
             border: 1px solid rgba(255, 91, 90, 0.3);
         }
         
@@ -275,19 +301,19 @@
         .positions-table td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #2a3345;
+            border-bottom: 1px solid var(--border-color);
         }
         
         .positions-table th {
-            color: #8a94a6;
+            color: var(--text-secondary);
             font-weight: 600;
             font-size: 14px;
         }
         
         .show-api-btn {
             background: transparent;
-            color: #00d2d3;
-            border: 1px solid #00d2d3;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
             padding: 8px 15px;
             border-radius: 6px;
             font-weight: 600;
@@ -297,15 +323,15 @@
         
         .no-data {
             text-align: center;
-            color: #8a94a6;
+            color: var(--text-secondary);
             padding: 40px 20px;
             font-style: italic;
         }
         
         .export-btn {
             background: transparent;
-            color: #8a94a6;
-            border: 1px solid #8a94a6;
+            color: var(--text-secondary);
+            border: 1px solid var(--text-secondary);
             padding: 8px 15px;
             border-radius: 6px;
             font-weight: 600;
@@ -325,12 +351,12 @@
         
         .long {
             background: rgba(0, 192, 135, 0.2);
-            color: #00c087;
+            color: var(--positive-color);
         }
         
         .short {
             background: rgba(255, 91, 90, 0.2);
-            color: #ff5b5a;
+            color: var(--negative-color);
         }
         
         .alert-input-group {
@@ -342,15 +368,15 @@
         .alert-input-group input {
             flex: 1;
             padding: 5px 8px;
-            background: #232c41;
-            border: 1px solid #2a3345;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            color: #eaecef;
+            color: var(--text-primary);
             font-size: 12px;
         }
         
         .alert-btn {
-            background: #ff5b5a;
+            background: var(--negative-color);
             color: white;
             border: none;
             padding: 5px 10px;
@@ -368,14 +394,14 @@
             justify-content: space-between;
             align-items: center;
             padding: 3px 5px;
-            background: #232c41;
+            background: var(--bg-tertiary);
             border-radius: 3px;
             margin-bottom: 2px;
         }
         
         .remove-alert {
             background: transparent;
-            color: #ff5b5a;
+            color: var(--negative-color);
             border: none;
             cursor: pointer;
             font-size: 12px;
@@ -389,6 +415,10 @@
             border-radius: 8px;
         }
         
+        .light-theme .settings-panel {
+            background: rgba(225, 229, 233, 0.3);
+        }
+        
         .settings-group {
             margin-bottom: 15px;
         }
@@ -396,7 +426,7 @@
         .settings-group label {
             display: block;
             margin-bottom: 5px;
-            color: #8a94a6;
+            color: var(--text-secondary);
             font-size: 14px;
         }
         
@@ -409,10 +439,71 @@
         .settings-row select {
             flex: 1;
             padding: 8px 12px;
-            background: #232c41;
-            border: 1px solid #2a3345;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            color: #eaecef;
+            color: var(--text-primary);
+        }
+        
+        /* 折叠面板样式 */
+        .collapsible {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .collapsible::after {
+            content: '▼';
+            font-size: 12px;
+            margin-left: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsible.collapsed::after {
+            transform: rotate(-90deg);
+        }
+        
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+        
+        /* 主题切换按钮 */
+        .theme-toggle {
+            background: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        /* GitHub配置样式 */
+        .github-config {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(42, 51, 69, 0.5);
+            border-radius: 6px;
+        }
+        
+        .light-theme .github-config {
+            background: rgba(225, 229, 233, 0.5);
+        }
+        
+        .github-config input {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            margin-bottom: 5px;
         }
         
         @media (max-width: 768px) {
@@ -449,7 +540,10 @@
 <body>
     <div class="container">
         <header>
-            <h1 id="app-title">OKX资产监控 v2.3</h1>
+            <div style="display: flex; align-items: center;">
+                <h1 id="app-title">OKX资产监控 v2.4</h1>
+                <button class="theme-toggle" id="theme-toggle">浅色模式</button>
+            </div>
             <div class="last-update"><span id="last-update-text">最后更新</span>: <span id="update-time">--:--:--</span></div>
         </header>
         
@@ -468,7 +562,18 @@
                 <input type="password" id="passphrase" placeholder="请输入您的Passphrase">
             </div>
             
-            <!-- 设置面板 -->
+            <!-- GitHub同步配置 -->
+            <div class="settings-panel">
+                <div class="card-title">GitHub数据同步</div>
+                <div class="github-config">
+                    <input type="text" id="github-token" placeholder="GitHub Personal Access Token">
+                    <input type="text" id="github-gist" placeholder="Gist ID (留空自动创建)">
+                    <button class="save-btn" onclick="saveGitHubConfig()" style="width: 100%; margin-top: 10px;">保存GitHub配置</button>
+                </div>
+                <div class="sync-status" id="sync-status" style="margin-top: 10px; font-size: 12px;"></div>
+            </div>
+            
+            <!-- 系统设置面板 -->
             <div class="settings-panel">
                 <div class="card-title">系统设置</div>
                 
@@ -495,11 +600,12 @@
                 <div class="settings-group">
                     <label for="refresh-interval">自动刷新间隔</label>
                     <select id="refresh-interval">
+                        <option value="2000">2秒</option>
+                        <option value="5000">5秒</option>
+                        <option value="10000">10秒</option>
                         <option value="30000">30秒</option>
                         <option value="60000">1分钟</option>
                         <option value="300000">5分钟</option>
-                        <option value="900000">15分钟</option>
-                        <option value="1800000">30分钟</option>
                         <option value="0">关闭自动刷新</option>
                     </select>
                 </div>
@@ -552,9 +658,13 @@
         </div>
         
         <div class="card">
-            <div class="card-title" id="assets-detail-title">资产详情</div>
-            <div class="assets-breakdown" id="assets-breakdown">
-                <div class="no-data" id="no-assets-data">请配置API并刷新数据</div>
+            <div class="card-title collapsible" id="assets-detail-title">
+                资产详情
+            </div>
+            <div class="collapsible-content" id="assets-detail-content">
+                <div class="assets-breakdown" id="assets-breakdown">
+                    <div class="no-data" id="no-assets-data">请配置API并刷新数据</div>
+                </div>
             </div>
         </div>
         
@@ -587,8 +697,8 @@
 
     <script>
         // 版本控制
-        if (localStorage.getItem('appVersion') !== '2.3') {
-            localStorage.setItem('appVersion', '2.3');
+        if (localStorage.getItem('appVersion') !== '2.4') {
+            localStorage.setItem('appVersion', '2.4');
         }
 
         // 系统配置
@@ -596,13 +706,27 @@
             language: 'zh-CN',
             alertSound: 'beep',
             refreshInterval: 30000,
-            autoRefresh: false
+            autoRefresh: false,
+            theme: 'dark',
+            assetsDetailCollapsed: false
+        };
+
+        // GitHub配置
+        let githubConfig = {
+            token: '',
+            gistId: ''
+        };
+
+        // 汇率数据
+        let exchangeRates = {
+            USDCNY: 7.2,
+            USDBTC: 0.00002
         };
 
         // 多语言文本
         const translations = {
             'zh-CN': {
-                'appTitle': 'OKX资产监控 v2.3',
+                'appTitle': 'OKX资产监控 v2.4',
                 'lastUpdate': '最后更新',
                 'totalAssets': '总资产概览',
                 'distribution': '资产分布',
@@ -624,10 +748,12 @@
                 'liqPrice': '强平价格',
                 'pnl': '浮动收益',
                 'pnlPercent': '收益率',
-                'alerts': '价格提醒'
+                'alerts': '价格提醒',
+                'lightTheme': '浅色模式',
+                'darkTheme': '深色模式'
             },
             'en-US': {
-                'appTitle': 'OKX Asset Monitor v2.3',
+                'appTitle': 'OKX Asset Monitor v2.4',
                 'lastUpdate': 'Last Update',
                 'totalAssets': 'Total Assets',
                 'distribution': 'Asset Distribution',
@@ -649,10 +775,12 @@
                 'liqPrice': 'Liquidation Price',
                 'pnl': 'P&L',
                 'pnlPercent': 'ROI',
-                'alerts': 'Price Alerts'
+                'alerts': 'Price Alerts',
+                'lightTheme': 'Light Mode',
+                'darkTheme': 'Dark Mode'
             },
             'ja-JP': {
-                'appTitle': 'OKX資産モニター v2.3',
+                'appTitle': 'OKX資産モニター v2.4',
                 'lastUpdate': '最終更新',
                 'totalAssets': '総資産概要',
                 'distribution': '資産分布',
@@ -674,7 +802,9 @@
                 'liqPrice': '清算価格',
                 'pnl': '評価損益',
                 'pnlPercent': '収益率',
-                'alerts': '価格アラート'
+                'alerts': '価格アラート',
+                'lightTheme': 'ライトモード',
+                'darkTheme': 'ダークモード'
             }
         };
 
@@ -708,6 +838,14 @@
                 systemConfig = JSON.parse(saved);
                 updateSystemUI();
             }
+            
+            // 加载GitHub配置
+            const savedGithub = localStorage.getItem('githubConfig');
+            if (savedGithub) {
+                githubConfig = JSON.parse(savedGithub);
+                document.getElementById('github-token').value = githubConfig.token || '';
+                document.getElementById('github-gist').value = githubConfig.gistId || '';
+            }
         }
 
         // 更新系统UI
@@ -715,6 +853,12 @@
             document.getElementById('language-select').value = systemConfig.language;
             document.getElementById('alert-sound-select').value = systemConfig.alertSound;
             document.getElementById('refresh-interval').value = systemConfig.refreshInterval;
+            
+            // 更新主题
+            updateTheme();
+            
+            // 更新折叠状态
+            updateCollapsible();
             
             updateLanguage();
             
@@ -724,6 +868,45 @@
             } else {
                 stopAutoRefresh();
             }
+        }
+
+        // 更新主题
+        function updateTheme() {
+            if (systemConfig.theme === 'light') {
+                document.body.classList.add('light-theme');
+                document.getElementById('theme-toggle').textContent = translations[systemConfig.language].darkTheme;
+            } else {
+                document.body.classList.remove('light-theme');
+                document.getElementById('theme-toggle').textContent = translations[systemConfig.language].lightTheme;
+            }
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            systemConfig.theme = systemConfig.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('systemConfig', JSON.stringify(systemConfig));
+            updateTheme();
+        }
+
+        // 更新折叠状态
+        function updateCollapsible() {
+            const content = document.getElementById('assets-detail-content');
+            const title = document.getElementById('assets-detail-title');
+            
+            if (systemConfig.assetsDetailCollapsed) {
+                content.classList.add('collapsed');
+                title.classList.add('collapsed');
+            } else {
+                content.classList.remove('collapsed');
+                title.classList.remove('collapsed');
+            }
+        }
+
+        // 切换折叠状态
+        function toggleAssetsDetail() {
+            systemConfig.assetsDetailCollapsed = !systemConfig.assetsDetailCollapsed;
+            localStorage.setItem('systemConfig', JSON.stringify(systemConfig));
+            updateCollapsible();
         }
 
         // 更新语言
@@ -757,6 +940,101 @@
             document.getElementById('th-pnl').textContent = texts.pnl;
             document.getElementById('th-pnl-percent').textContent = texts.pnlPercent;
             document.getElementById('th-alerts').textContent = texts.alerts;
+            
+            // 更新主题按钮
+            document.getElementById('theme-toggle').textContent = 
+                systemConfig.theme === 'dark' ? texts.lightTheme : texts.darkTheme;
+        }
+
+        // 获取实时汇率
+        async function fetchExchangeRates() {
+            try {
+                // 获取USD/CNY汇率
+                const cnyResponse = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                if (cnyResponse.ok) {
+                    const cnyData = await cnyResponse.json();
+                    exchangeRates.USDCNY = cnyData.rates.CNY || 7.2;
+                }
+                
+                // 获取BTC价格（使用OKX API）
+                const btcResponse = await fetch('https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT');
+                if (btcResponse.ok) {
+                    const btcData = await btcResponse.json();
+                    if (btcData.code === '0' && btcData.data.length > 0) {
+                        const btcPrice = parseFloat(btcData.data[0].last);
+                        exchangeRates.USDBTC = 1 / btcPrice;
+                    }
+                }
+            } catch (error) {
+                console.log('获取汇率失败，使用默认值');
+                // 使用默认值
+                exchangeRates.USDCNY = 7.2;
+                exchangeRates.USDBTC = 0.00002;
+            }
+        }
+
+        // GitHub配置保存
+        function saveGitHubConfig() {
+            const token = document.getElementById('github-token').value.trim();
+            const gistId = document.getElementById('github-gist').value.trim();
+            
+            githubConfig.token = token;
+            githubConfig.gistId = gistId;
+            localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
+            
+            showStatus('GitHub配置已保存', 'success');
+        }
+
+        // GitHub同步功能
+        async function syncToGitHub(data) {
+            if (!githubConfig.token) {
+                throw new Error('请先配置GitHub Token');
+            }
+            
+            const gistId = githubConfig.gistId;
+            const gistData = {
+                description: 'OKX资产监控数据',
+                public: false,
+                files: {
+                    'okx-data.json': {
+                        content: JSON.stringify({
+                            ...data,
+                            syncTime: new Date().toISOString(),
+                            version: '2.4'
+                        })
+                    }
+                }
+            };
+            
+            const url = gistId ? 
+                `https://api.github.com/gists/${gistId}` :
+                'https://api.github.com/gists';
+            
+            const method = gistId ? 'PATCH' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Authorization': `token ${githubConfig.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(gistData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`GitHub API错误: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            // 保存Gist ID
+            if (!gistId) {
+                githubConfig.gistId = result.id;
+                localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
+                document.getElementById('github-gist').value = result.id;
+            }
+            
+            return result;
         }
 
         // 播放提醒声音
@@ -838,7 +1116,52 @@
             showStatus('系统设置已保存', 'success');
         }
 
-        // 核心功能函数（保持不变）
+        // 单位转换函数
+        function convertToUnit(value, unit) {
+            switch(unit) {
+                case 'CNY':
+                    return value * exchangeRates.USDCNY;
+                case 'BTC':
+                    return value * exchangeRates.USDBTC;
+                default:
+                    return value;
+            }
+        }
+
+        function getUnitSymbol(unit) {
+            switch(unit) {
+                case 'CNY': return '¥';
+                case 'BTC': return '₿';
+                default: return '$';
+            }
+        }
+
+        // 更新总资产显示
+        function updateTotalAssetsDisplay() {
+            let displayValue = assetsData.total;
+            let unitSymbol = '$';
+            
+            if (currentUnit !== 'USD') {
+                displayValue = convertToUnit(assetsData.total, currentUnit);
+                unitSymbol = getUnitSymbol(currentUnit);
+            }
+            
+            document.getElementById('total-assets').innerHTML = `
+                ${unitSymbol}${formatNumber(displayValue)}
+                <button class="unit-toggle" id="unit-toggle">切换单位</button>
+            `;
+        }
+
+        // 切换单位
+        function toggleUnit() {
+            const units = ['USD', 'CNY', 'BTC'];
+            currentUnit = units[(units.indexOf(currentUnit) + 1) % units.length];
+            updateTotalAssetsDisplay();
+            updateAssetsBreakdown();
+            updatePositions();
+        }
+
+        // 核心API功能
         function generateSignature(timestamp, method, requestPath, body = '') {
             const message = timestamp + method + requestPath + body;
             return CryptoJS.enc.Base64.stringify(
@@ -904,11 +1227,440 @@
             return data.data;
         }
 
-        // 其他原有函数保持不变...
-        // processAssetData, processPositionsData, formatNumber, updateTotalAssetsDisplay, 
-        // updateAssetsBreakdown, updatePositions, refreshData, showStatus, initCharts, 
-        // updateCharts, updateTrendChart, updateTime, loadApiConfig, saveApiConfig, 
-        // clearApiConfig, showApiConfig, toggleUnit, setTrendPeriod 等函数保持不变
+        function processAssetData(balances) {
+            if (!balances || balances.length === 0) return null;
+
+            let total = 0;
+            const breakdown = [];
+            
+            const assetsWithBalance = balances.filter(asset => 
+                parseFloat(asset.eq) > 0 || parseFloat(asset.cashBal) > 0
+            );
+            
+            if (assetsWithBalance.length === 0) return null;
+            
+            assetsWithBalance.forEach(asset => {
+                const value = parseFloat(asset.eq) || parseFloat(asset.cashBal) || 0;
+                if (value > 0) {
+                    total += value;
+                    breakdown.push({
+                        name: asset.ccy,
+                        value: value,
+                        percentage: 0
+                    });
+                }
+            });
+            
+            breakdown.forEach(asset => {
+                asset.percentage = total > 0 ? (asset.value / total * 100).toFixed(1) : 0;
+            });
+            
+            breakdown.sort((a, b) => b.value - a.value);
+            
+            return { total, breakdown };
+        }
+
+        function processPositionsData(positions) {
+            if (!positions || positions.length === 0) return [];
+
+            const activePositions = positions.filter(position => parseFloat(position.pos) > 0);
+            if (activePositions.length === 0) return [];
+
+            return activePositions.map(position => {
+                const pos = parseFloat(position.pos);
+                const avgPx = parseFloat(position.avgPx) || 0;
+                const markPx = parseFloat(position.markPx) || 0;
+                const liqPx = parseFloat(position.liqPx) || 0;
+                
+                const unrealizedPnl = parseFloat(position.upl) || 0;
+                const uplRatio = parseFloat(position.uplRatio) || 0;
+                
+                const pnlPercent = uplRatio * 100;
+                
+                return {
+                    instId: position.instId,
+                    ccy: position.instId.split('-')[0],
+                    pos: pos,
+                    avgPx: avgPx,
+                    markPx: markPx,
+                    liqPx: liqPx,
+                    unrealizedPnl: unrealizedPnl,
+                    pnlPercent: pnlPercent,
+                    posSide: position.posSide || 'long',
+                    lever: parseFloat(position.lever) || 1,
+                    margin: parseFloat(position.margin) || 0
+                };
+            });
+        }
+
+        function formatNumber(num, decimals = 2) {
+            if (isNaN(num)) return '0.00';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function updateAssetsBreakdown() {
+            const container = document.getElementById('assets-breakdown');
+            
+            if (!assetsData.breakdown || assetsData.breakdown.length === 0) {
+                container.innerHTML = '<div class="no-data">暂无资产数据</div>';
+                return;
+            }
+            
+            let html = '';
+            assetsData.breakdown.forEach(asset => {
+                let displayValue = asset.value;
+                let unitSymbol = '$';
+                
+                if (currentUnit !== 'USD') {
+                    displayValue = convertToUnit(asset.value, currentUnit);
+                    unitSymbol = getUnitSymbol(currentUnit);
+                }
+                
+                html += `
+                    <div class="asset-item">
+                        <div class="asset-name">
+                            <div class="asset-icon">${asset.name.substring(0, 2)}</div>
+                            <span>${asset.name}</span>
+                        </div>
+                        <div>
+                            <div>${unitSymbol}${formatNumber(displayValue)}</div>
+                            <div style="color: var(--text-secondary); font-size: 12px;">${asset.percentage}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function updatePositions() {
+            const container = document.getElementById('positions-body');
+            
+            if (!assetsData.positions || assetsData.positions.length === 0) {
+                container.innerHTML = '<tr><td colspan="9" class="no-data">暂无持仓数据</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            assetsData.positions.forEach((position, index) => {
+                let displayPnl = position.unrealizedPnl;
+                let unitSymbol = '$';
+                
+                if (currentUnit !== 'USD') {
+                    displayPnl = convertToUnit(position.unrealizedPnl, currentUnit);
+                    unitSymbol = getUnitSymbol(currentUnit);
+                }
+                
+                const directionClass = position.posSide === 'long' ? 'long' : 'short';
+                const directionText = position.posSide === 'long' ? '多' : '空';
+                const alerts = priceAlerts[position.instId] || [];
+                
+                html += `
+                    <tr>
+                        <td>${position.instId}</td>
+                        <td><span class="position-direction ${directionClass}">${directionText}</span></td>
+                        <td>${formatNumber(position.pos, 4)}</td>
+                        <td>${formatNumber(position.markPx, 4)}</td>
+                        <td>${formatNumber(position.avgPx, 4)}</td>
+                        <td>${position.liqPx > 0 ? formatNumber(position.liqPx, 4) : '--'}</td>
+                        <td class="${position.unrealizedPnl >= 0 ? 'positive' : 'negative'}">
+                            ${unitSymbol}${position.unrealizedPnl >= 0 ? '+' : ''}${formatNumber(displayPnl)}
+                        </td>
+                        <td class="${position.pnlPercent >= 0 ? 'positive' : 'negative'}">
+                            ${position.pnlPercent >= 0 ? '+' : ''}${position.pnlPercent.toFixed(2)}%
+                        </td>
+                        <td>
+                            <div class="alert-input-group">
+                                <input type="number" id="alert-price-${index}" placeholder="目标价格" step="0.0001">
+                                <button class="alert-btn" onclick="addAlert('${position.instId}', ${index})">设置</button>
+                            </div>
+                            <div class="alerts-list">
+                                ${alerts.map(alert => `
+                                    <div class="alert-item">
+                                        <span>${alert.price}</span>
+                                        <button class="remove-alert" onclick="removeAlert('${position.instId}', ${alert.id})">×</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // 价格提醒功能
+        function addPriceAlert(instId, targetPrice) {
+            if (!priceAlerts[instId]) {
+                priceAlerts[instId] = [];
+            }
+            priceAlerts[instId].push({
+                id: Date.now(),
+                price: parseFloat(targetPrice),
+                triggered: false
+            });
+            localStorage.setItem('priceAlerts', JSON.stringify(priceAlerts));
+            showStatus(`已设置价格提醒: ${instId} - ${targetPrice}`, 'success');
+        }
+        
+        function removePriceAlert(instId, alertId) {
+            if (priceAlerts[instId]) {
+                priceAlerts[instId] = priceAlerts[instId].filter(alert => alert.id !== alertId);
+                if (priceAlerts[instId].length === 0) {
+                    delete priceAlerts[instId];
+                }
+                localStorage.setItem('priceAlerts', JSON.stringify(priceAlerts));
+            }
+        }
+
+        function addAlert(instId, index) {
+            const input = document.getElementById(`alert-price-${index}`);
+            const price = input.value;
+            if (price) {
+                addPriceAlert(instId, price);
+                input.value = '';
+                updatePositions();
+            }
+        }
+        
+        function removeAlert(instId, alertId) {
+            removePriceAlert(instId, alertId);
+            updatePositions();
+        }
+
+        function checkPriceAlerts() {
+            let triggered = false;
+            if (assetsData.positions) {
+                assetsData.positions.forEach(position => {
+                    const alerts = priceAlerts[position.instId];
+                    if (alerts) {
+                        alerts.forEach(alert => {
+                            if (!alert.triggered) {
+                                const currentPrice = position.markPx;
+                                if ((position.posSide === 'long' && currentPrice >= alert.price) ||
+                                    (position.posSide === 'short' && currentPrice <= alert.price)) {
+                                    playAlertSound();
+                                    alert.triggered = true;
+                                    showStatus(`🔔 价格提醒: ${position.instId} 达到 ${alert.price}`, 'success');
+                                    triggered = true;
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+            if (triggered) {
+                localStorage.setItem('priceAlerts', JSON.stringify(priceAlerts));
+            }
+        }
+
+        async function refreshData() {
+            if (!apiConfig.apiKey || !apiConfig.secretKey || !apiConfig.passphrase) {
+                showStatus('请先配置API信息', 'error');
+                return;
+            }
+            
+            if (isUpdating) return;
+            
+            isUpdating = true;
+            document.getElementById('refresh-btn').disabled = true;
+            
+            try {
+                const [balances, positions] = await Promise.all([
+                    fetchAccountBalance(),
+                    fetchPositions()
+                ]);
+                
+                const processedData = processAssetData(balances);
+                if (processedData) {
+                    assetsData = {
+                        ...processedData,
+                        positions: processPositionsData(positions)
+                    };
+                    
+                    updateTotalAssetsDisplay();
+                    updateAssetsBreakdown();
+                    updatePositions();
+                    updateCharts();
+                    updateTime();
+                    checkPriceAlerts();
+                    showStatus('数据更新成功', 'success');
+                } else {
+                    showStatus('暂无资产数据', 'error');
+                }
+            } catch (error) {
+                showStatus('获取数据失败: ' + error.message, 'error');
+            } finally {
+                isUpdating = false;
+                document.getElementById('refresh-btn').disabled = false;
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('api-status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+            
+            setTimeout(() => {
+                statusElement.textContent = '';
+                statusElement.className = 'status';
+            }, 5000);
+        }
+
+        // 图表功能
+        function initCharts() {
+            const distributionCtx = document.getElementById('distribution-chart').getContext('2d');
+            distributionChart = new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: { 
+                    labels: [], 
+                    datasets: [{ 
+                        data: [], 
+                        backgroundColor: [
+                            '#00d2d3', '#00c087', '#ff5b5a', '#ffc542', '#8a94a6',
+                            '#2a3345', '#232c41', '#1a2235', '#0d1421', '#8a94a6'
+                        ] 
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: 'var(--text-primary)',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const trendCtx = document.getElementById('trend-chart').getContext('2d');
+            trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: { 
+                    labels: [], 
+                    datasets: [{ 
+                        data: [], 
+                        borderColor: 'var(--accent-color)', 
+                        backgroundColor: 'rgba(0, 210, 211, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(138, 148, 166, 0.1)'
+                            },
+                            ticks: {
+                                color: 'var(--text-secondary)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(138, 148, 166, 0.1)'
+                            },
+                            ticks: {
+                                color: 'var(--text-secondary)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            // 更新资产分布图
+            if (assetsData.breakdown && assetsData.breakdown.length > 0) {
+                distributionChart.data.labels = assetsData.breakdown.map(asset => asset.name);
+                distributionChart.data.datasets[0].data = assetsData.breakdown.map(asset => parseFloat(asset.percentage));
+                distributionChart.update();
+            }
+            
+            // 更新资产趋势图
+            updateTrendChart();
+        }
+
+        function updateTrendChart() {
+            // 这里可以添加趋势图数据更新逻辑
+            // 暂时使用模拟数据
+            const labels = ['1', '2', '3', '4', '5', '6', '7'];
+            const data = [10000, 10500, 9800, 11000, 11500, 10800, 12000];
+            
+            trendChart.data.labels = labels;
+            trendChart.data.datasets[0].data = data;
+            trendChart.update();
+        }
+
+        function updateTime() {
+            document.getElementById('update-time').textContent = new Date().toLocaleTimeString();
+        }
+
+        function setTrendPeriod(period) {
+            currentTrendPeriod = period;
+            document.querySelectorAll('.trend-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.trend-btn[data-period="${period}"]`).classList.add('active');
+            updateTrendChart();
+        }
+
+        // API配置管理
+        function loadApiConfig() {
+            const savedConfig = localStorage.getItem('okxApiConfig');
+            if (savedConfig) {
+                apiConfig = JSON.parse(savedConfig);
+                document.getElementById('api-key').value = apiConfig.apiKey;
+                document.getElementById('secret-key').value = apiConfig.secretKey;
+                document.getElementById('passphrase').value = apiConfig.passphrase;
+                document.getElementById('api-config').classList.add('hidden');
+            }
+        }
+
+        function saveApiConfig() {
+            const apiKey = document.getElementById('api-key').value.trim();
+            const secretKey = document.getElementById('secret-key').value.trim();
+            const passphrase = document.getElementById('passphrase').value.trim();
+            
+            if (!apiKey || !secretKey || !passphrase) {
+                showStatus('请填写完整的API配置信息', 'error');
+                return;
+            }
+            
+            apiConfig = { apiKey, secretKey, passphrase };
+            localStorage.setItem('okxApiConfig', JSON.stringify(apiConfig));
+            showStatus('API配置已保存', 'success');
+            document.getElementById('api-config').classList.add('hidden');
+            refreshData();
+        }
+
+        function clearApiConfig() {
+            document.getElementById('api-key').value = '';
+            document.getElementById('secret-key').value = '';
+            document.getElementById('passphrase').value = '';
+            apiConfig = { apiKey: '', secretKey: '', passphrase: '' };
+            localStorage.removeItem('okxApiConfig');
+            showStatus('API配置已清除', 'success');
+        }
+
+        function showApiConfig() {
+            document.getElementById('api-config').classList.remove('hidden');
+        }
 
         // 初始化函数
         function init() {
@@ -919,6 +1671,11 @@
             updateTime();
             updateTrendChart();
             
+            // 获取初始汇率
+            fetchExchangeRates();
+            // 每5分钟更新一次汇率
+            setInterval(fetchExchangeRates, 5 * 60 * 1000);
+            
             // 绑定事件
             document.getElementById('save-api').addEventListener('click', function() {
                 saveApiConfig();
@@ -928,6 +1685,8 @@
             document.getElementById('refresh-btn').addEventListener('click', refreshData);
             document.getElementById('auto-refresh-toggle').addEventListener('click', toggleAutoRefresh);
             document.getElementById('show-api-btn').addEventListener('click', showApiConfig);
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+            document.getElementById('assets-detail-title').addEventListener('click', toggleAssetsDetail);
             
             document.addEventListener('click', function(e) {
                 if (e.target && e.target.id === 'unit-toggle') {
