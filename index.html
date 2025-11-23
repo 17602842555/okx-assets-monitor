@@ -540,7 +540,11 @@
                 <div class="github-config">
                     <input type="text" id="github-token" placeholder="GitHub Personal Access Token">
                     <input type="text" id="github-gist" placeholder="Gist ID (留空自动创建)">
-                    <button class="save-btn" id="save-github-btn" style="width: 100%; margin-top: 10px;">保存GitHub配置</button>
+                    <div style="display: flex; gap: 5px; margin-top: 5px;">
+                        <button class="save-btn" id="save-github-btn" style="flex: 1;">保存GitHub配置</button>
+                        <button class="save-btn" id="sync-to-github-btn" style="flex: 1; background-color: #00c087;">同步到GitHub</button>
+                        <button class="save-btn" id="sync-from-github-btn" style="flex: 1; background-color: #ffc542; color: #2c3e50;">从GitHub加载</button>
+                    </div>
                 </div>
                 <div class="sync-status" id="sync-status" style="margin-top: 10px; font-size: 12px;"></div>
             </div>
@@ -579,6 +583,18 @@
                         <option value="60000">1分钟</option>
                         <option value="300000">5分钟</option>
                         <option value="0">关闭自动刷新</option>
+                    </select>
+                </div>
+                
+                <div class="settings-group">
+                    <label for="auto-sync">GitHub自动同步</label>
+                    <select id="auto-sync">
+                        <option value="0">关闭自动同步</option>
+                        <option value="60000">1分钟</option>
+                        <option value="300000">5分钟</option>
+                        <option value="900000">15分钟</option>
+                        <option value="1800000">30分钟</option>
+                        <option value="3600000">1小时</option>
                     </select>
                 </div>
             </div>
@@ -675,7 +691,9 @@
             refreshInterval: 30000,
             autoRefresh: false,
             theme: 'dark',
-            assetsDetailCollapsed: false
+            assetsDetailCollapsed: false,
+            autoSync: false,
+            autoSyncInterval: 900000 // 默认15分钟
         };
 
         // GitHub配置
@@ -831,6 +849,7 @@
             document.getElementById('language-select').value = systemConfig.language;
             document.getElementById('alert-sound-select').value = systemConfig.alertSound;
             document.getElementById('refresh-interval').value = systemConfig.refreshInterval;
+            document.getElementById('auto-sync').value = systemConfig.autoSyncInterval;
             document.getElementById('github-token').value = githubConfig.token || '';
             document.getElementById('github-gist').value = githubConfig.gistId || '';
             document.getElementById('api-key').value = apiConfig.apiKey || '';
@@ -845,6 +864,12 @@
                 startAutoRefresh();
             } else {
                 stopAutoRefresh();
+            }
+            
+            if (systemConfig.autoSync && systemConfig.autoSyncInterval > 0) {
+                startAutoSync();
+            } else {
+                stopAutoSync();
             }
         }
 
@@ -1032,6 +1057,33 @@
             systemConfig.autoRefresh = false;
             updateAutoRefreshButton();
         }
+        
+        // 自动同步控制
+        function startAutoSync() {
+            stopAutoSync();
+            if (systemConfig.autoSyncInterval > 0 && githubConfig.token) {
+                autoSyncInterval = setInterval(() => {
+                    saveDataToGitHub();
+                }, systemConfig.autoSyncInterval);
+                systemConfig.autoSync = true;
+                console.log(`已开启GitHub自动同步，间隔: ${formatTimeInterval(systemConfig.autoSyncInterval)}`);
+            }
+        }
+
+        function stopAutoSync() {
+            if (autoSyncInterval) {
+                clearInterval(autoSyncInterval);
+                autoSyncInterval = null;
+            }
+            systemConfig.autoSync = false;
+        }
+        
+        // 格式化时间间隔
+        function formatTimeInterval(ms) {
+            if (ms >= 3600000) return `${ms / 3600000}小时`;
+            if (ms >= 60000) return `${ms / 60000}分钟`;
+            return `${ms / 1000}秒`;
+        }
 
         function updateAutoRefreshButton() {
             const btn = document.getElementById('auto-refresh-toggle');
@@ -1046,6 +1098,8 @@
             systemConfig.language = document.getElementById('language-select').value;
             systemConfig.alertSound = document.getElementById('alert-sound-select').value;
             systemConfig.refreshInterval = parseInt(document.getElementById('refresh-interval').value);
+            systemConfig.autoSyncInterval = parseInt(document.getElementById('auto-sync').value);
+            systemConfig.autoSync = systemConfig.autoSyncInterval > 0;
             
             localStorage.setItem('systemConfig', JSON.stringify(systemConfig));
             updateSystemUI();
@@ -1513,6 +1567,13 @@
                     updateChangeDisplay();
                     checkPriceAlerts();
                     showStatus('数据更新成功', 'success');
+                    
+                    // 如果启用了自动同步，同步到GitHub
+                    if (systemConfig.autoSync && githubConfig.token) {
+                        setTimeout(() => {
+                            saveDataToGitHub();
+                        }, 1000);
+                    }
                 } else {
                     showStatus('暂无资产数据', 'error');
                 }
@@ -1729,10 +1790,18 @@
             document.getElementById('save-api').addEventListener('click', saveApiConfig);
             document.getElementById('clear-api').addEventListener('click', clearApiConfig);
             document.getElementById('save-github-btn').addEventListener('click', saveGitHubConfig);
+            document.getElementById('sync-to-github-btn').addEventListener('click', saveDataToGitHub);
+            document.getElementById('sync-from-github-btn').addEventListener('click', loadDataFromGitHub);
             document.getElementById('refresh-btn').addEventListener('click', refreshData);
             document.getElementById('auto-refresh-toggle').addEventListener('click', toggleAutoRefresh);
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('assets-detail-title').addEventListener('click', toggleAssetsDetail);
+            
+            // 系统设置变更
+            document.getElementById('auto-sync').addEventListener('change', saveSystemConfig);
+            document.getElementById('language-select').addEventListener('change', saveSystemConfig);
+            document.getElementById('alert-sound-select').addEventListener('change', saveSystemConfig);
+            document.getElementById('refresh-interval').addEventListener('change', saveSystemConfig);
             
             // 动态生成的按钮
             document.addEventListener('click', function(e) {
@@ -1743,6 +1812,13 @@
                     setTrendPeriod(e.target.getAttribute('data-period'));
                 }
             });
+            
+            // 如果配置了GitHub Token，尝试连接
+            if (githubConfig.token) {
+                setTimeout(() => {
+                    testGitHubConnection();
+                }, 1000);
+            }
             
             console.log('应用初始化完成，所有事件已绑定');
         }
