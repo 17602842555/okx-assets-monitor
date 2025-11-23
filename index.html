@@ -89,6 +89,61 @@
         .collapsible.collapsed::after { transform: rotate(-90deg); }
         .collapsible-content { overflow: hidden; transition: max-height 0.3s ease; }
         .collapsible-content.collapsed { max-height: 0; }
+        
+        /* 手机端响应式样式 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+                overflow-x: auto;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            /* 表格容器水平滚动 */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .positions-table {
+                min-width: 800px;
+            }
+            
+            /* 资产详情网格调整 */
+            .assets-breakdown {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 10px;
+            }
+            
+            /* 按钮组调整 */
+            .api-actions, .trend-controls {
+                flex-wrap: wrap;
+            }
+            
+            .refresh-btn, .unit-toggle, .show-api-btn {
+                font-size: 11px;
+                padding: 6px 10px;
+            }
+            
+            /* 总资产显示调整 */
+            .total-assets {
+                font-size: 24px;
+                flex-wrap: wrap;
+            }
+            
+            /* GitHub按钮调整 */
+            .github-actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -126,6 +181,12 @@
                     <input type="text" id="github-token" placeholder="GitHub Personal Access Token">
                     <input type="text" id="github-gist" placeholder="Gist ID (留空自动创建)">
                     <button class="save-btn" onclick="App.saveGitHubConfig()" style="width: 100%; margin-top: 10px;">保存GitHub配置</button>
+                    
+                    <!-- 同步操作按钮 -->
+                    <div class="github-actions" style="margin-top: 10px; display: flex; gap: 10px;">
+                        <button class="save-btn" onclick="App.manualSync()" style="flex: 1;">立即同步到GitHub</button>
+                        <button class="refresh-btn" onclick="App.manualRestore()" style="flex: 1;">从GitHub恢复</button>
+                    </div>
                 </div>
                 <div class="sync-status" id="sync-status" style="margin-top: 10px; font-size: 12px;"></div>
             </div>
@@ -497,18 +558,53 @@
             },
 
             // 保存GitHub配置
-            saveGitHubConfig() {
+            async saveGitHubConfig() {
                 console.log('保存GitHub配置');
                 const token = document.getElementById('github-token').value.trim();
                 const gistId = document.getElementById('github-gist').value.trim();
+                
+                if (!token) {
+                    this.showStatus('请输入GitHub Token', 'error');
+                    return;
+                }
                 
                 this.config.github = { token, gistId };
                 localStorage.setItem('githubConfig', JSON.stringify(this.config.github));
                 this.showStatus('GitHub配置已保存', 'success');
                 
-                // 如果有token，尝试同步数据
-                if (token) {
-                    this.syncToGitHub();
+                // 自动测试连接
+                await this.testGitHubConnection();
+            },
+
+            // 测试GitHub连接
+            async testGitHubConnection() {
+                if (!this.config.github.token) return;
+                
+                try {
+                    const syncStatus = document.getElementById('sync-status');
+                    syncStatus.textContent = '测试GitHub连接...';
+                    syncStatus.className = 'sync-status syncing';
+                    
+                    const response = await fetch('https://api.github.com/user', {
+                        headers: {
+                            'Authorization': `token ${this.config.github.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`GitHub连接失败: ${response.status}`);
+                    }
+                    
+                    const userData = await response.json();
+                    syncStatus.textContent = `连接成功 (${userData.login})`;
+                    syncStatus.className = 'sync-status success';
+                    
+                } catch (error) {
+                    console.error('GitHub连接测试失败:', error);
+                    const syncStatus = document.getElementById('sync-status');
+                    syncStatus.textContent = '连接失败: ' + error.message;
+                    syncStatus.className = 'sync-status error';
                 }
             },
 
@@ -521,24 +617,28 @@
                 
                 try {
                     const syncStatus = document.getElementById('sync-status');
-                    syncStatus.textContent = '正在同步数据...';
+                    syncStatus.textContent = '正在同步数据到GitHub...';
                     syncStatus.className = 'sync-status syncing';
                     
+                    // 准备同步数据
                     const dataToSync = {
                         historicalData: this.data.historical,
                         priceAlerts: this.data.priceAlerts,
                         assetsData: this.data.assets,
+                        systemConfig: this.config.system,
+                        exchangeRates: this.data.exchangeRates,
                         syncTime: new Date().toISOString(),
-                        version: '2.5'
+                        version: '2.5',
+                        totalRecords: this.data.historical.length
                     };
                     
                     const gistId = this.config.github.gistId;
                     const gistData = {
-                        description: 'OKX资产监控数据',
+                        description: `OKX资产监控数据 - ${new Date().toLocaleString('zh-CN')}`,
                         public: false,
                         files: {
-                            'okx-data.json': {
-                                content: JSON.stringify(dataToSync)
+                            'okx-asset-monitor-data.json': {
+                                content: JSON.stringify(dataToSync, null, 2)
                             }
                         }
                     };
@@ -553,24 +653,27 @@
                         method: method,
                         headers: {
                             'Authorization': `token ${this.config.github.token}`,
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
                         },
                         body: JSON.stringify(gistData)
                     });
                     
                     if (!response.ok) {
-                        throw new Error(`GitHub API错误: ${response.status}`);
+                        const errorData = await response.json();
+                        throw new Error(`GitHub API错误: ${response.status} - ${errorData.message}`);
                     }
                     
                     const result = await response.json();
                     
+                    // 如果是新创建的Gist，保存Gist ID
                     if (!gistId) {
                         this.config.github.gistId = result.id;
                         localStorage.setItem('githubConfig', JSON.stringify(this.config.github));
                         document.getElementById('github-gist').value = result.id;
                     }
                     
-                    syncStatus.textContent = '数据同步成功';
+                    syncStatus.textContent = `同步成功! Gist: ${result.id}`;
                     syncStatus.className = 'sync-status success';
                     
                 } catch (error) {
@@ -578,40 +681,78 @@
                     const syncStatus = document.getElementById('sync-status');
                     syncStatus.textContent = '同步失败: ' + error.message;
                     syncStatus.className = 'sync-status error';
+                    this.showStatus('GitHub同步失败: ' + error.message, 'error');
                 }
             },
 
             // 从GitHub加载数据
             async loadFromGitHub() {
                 if (!this.config.github.token || !this.config.github.gistId) {
-                    throw new Error('GitHub配置不完整');
+                    throw new Error('GitHub配置不完整，请检查Token和Gist ID');
                 }
                 
-                const response = await fetch(`https://api.github.com/gists/${this.config.github.gistId}`, {
-                    headers: {
-                        'Authorization': `token ${this.config.github.token}`
+                try {
+                    const syncStatus = document.getElementById('sync-status');
+                    syncStatus.textContent = '正在从GitHub恢复数据...';
+                    syncStatus.className = 'sync-status syncing';
+                    
+                    const response = await fetch(`https://api.github.com/gists/${this.config.github.gistId}`, {
+                        headers: {
+                            'Authorization': `token ${this.config.github.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`获取数据失败: ${response.status}`);
                     }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`获取数据失败: ${response.status}`);
+                    
+                    const gist = await response.json();
+                    const fileContent = gist.files['okx-asset-monitor-data.json'] || gist.files['okx-data.json'];
+                    
+                    if (!fileContent) {
+                        throw new Error('Gist中未找到有效数据文件');
+                    }
+                    
+                    const content = JSON.parse(fileContent.content);
+                    
+                    // 恢复数据
+                    if (content.historicalData) {
+                        this.data.historical = content.historicalData;
+                        localStorage.setItem('okxHistoricalData', JSON.stringify(this.data.historical));
+                    }
+                    if (content.priceAlerts) {
+                        this.data.priceAlerts = content.priceAlerts;
+                        localStorage.setItem('priceAlerts', JSON.stringify(this.data.priceAlerts));
+                    }
+                    if (content.assetsData) {
+                        this.data.assets = { ...this.data.assets, ...content.assetsData };
+                    }
+                    
+                    syncStatus.textContent = `数据恢复成功! 加载了 ${content.historicalData?.length || 0} 条历史记录`;
+                    syncStatus.className = 'sync-status success';
+                    
+                    // 更新界面
+                    this.updateTrendChart();
+                    this.showStatus('云端数据恢复成功', 'success');
+                    
+                } catch (error) {
+                    console.error('GitHub数据恢复失败:', error);
+                    const syncStatus = document.getElementById('sync-status');
+                    syncStatus.textContent = '恢复失败: ' + error.message;
+                    syncStatus.className = 'sync-status error';
+                    throw error;
                 }
-                
-                const gist = await response.json();
-                const content = JSON.parse(gist.files['okx-data.json'].content);
-                
-                // 恢复数据
-                if (content.historicalData) {
-                    this.data.historical = content.historicalData;
-                    localStorage.setItem('okxHistoricalData', JSON.stringify(this.data.historical));
-                }
-                if (content.priceAlerts) {
-                    this.data.priceAlerts = content.priceAlerts;
-                    localStorage.setItem('priceAlerts', JSON.stringify(this.data.priceAlerts));
-                }
-                
-                this.showStatus('云端数据加载成功', 'success');
-                this.updateTrendChart();
+            },
+
+            // 手动同步
+            async manualSync() {
+                await this.syncToGitHub();
+            },
+
+            // 手动恢复
+            async manualRestore() {
+                await this.loadFromGitHub();
             },
 
             // 切换主题
