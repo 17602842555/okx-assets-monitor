@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OKX资产监控</title>
+    <title>OKX资产监控 v2.0</title>
+    
+    <!-- 缓存控制 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <!-- PWA配置 -->
     <meta name="theme-color" content="#00d2d3">
@@ -29,7 +34,6 @@
             color: #eaecef;
             padding: 20px;
             min-height: 100vh;
-            padding-bottom: 80px;
         }
         
         .container {
@@ -132,7 +136,6 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
-            transition: all 0.3s;
         }
         
         .trend-btn.active {
@@ -216,11 +219,6 @@
             border-radius: 6px;
             color: #eaecef;
             font-size: 14px;
-        }
-        
-        .api-input-group input:focus {
-            outline: none;
-            border-color: #00d2d3;
         }
         
         .api-actions {
@@ -356,12 +354,6 @@
             margin-left: 10px;
         }
         
-        .cache-indicator {
-            font-size: 12px;
-            color: #8a94a6;
-            margin-top: 5px;
-        }
-        
         .position-direction {
             display: inline-block;
             padding: 2px 6px;
@@ -381,99 +373,44 @@
             color: #ff5b5a;
         }
         
-        /* 趋势统计样式 */
-        .trend-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(42, 51, 69, 0.3);
-            border-radius: 8px;
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #8a94a6;
-            margin-bottom: 5px;
-        }
-        
-        .stat-value {
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .stat-value.positive {
-            color: #00c087;
-        }
-        
-        .stat-value.negative {
-            color: #ff5b5a;
-        }
-        
-        .data-management {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #2a3345;
-        }
-        
-        .data-info {
-            font-size: 12px;
-            color: #8a94a6;
-            margin-bottom: 10px;
-        }
-        
-        /* 价格提醒样式 */
-        .alert-config {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(42, 51, 69, 0.3);
-            border-radius: 8px;
-        }
-        
         .alert-input-group {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
         }
         
         .alert-input-group input {
             flex: 1;
-            padding: 8px 12px;
+            padding: 5px 8px;
             background: #232c41;
             border: 1px solid #2a3345;
-            border-radius: 6px;
+            border-radius: 4px;
             color: #eaecef;
+            font-size: 12px;
         }
         
         .alert-btn {
             background: #ff5b5a;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
+            padding: 5px 10px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
         }
         
         .alerts-list {
-            margin-top: 10px;
+            font-size: 11px;
         }
         
         .alert-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 12px;
+            padding: 3px 5px;
             background: #232c41;
-            border-radius: 6px;
-            margin-bottom: 5px;
-            font-size: 12px;
+            border-radius: 3px;
+            margin-bottom: 2px;
         }
         
         .remove-alert {
@@ -481,10 +418,9 @@
             color: #ff5b5a;
             border: none;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
         }
         
-        /* 移动端优化 */
         @media (max-width: 768px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -513,10 +449,6 @@
                 font-size: 14px;
                 margin-bottom: 5px;
             }
-            
-            .trend-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
     </style>
 </head>
@@ -531,7 +463,7 @@
 
     <div class="container">
         <header>
-            <h1>OKX资产监控</h1>
+            <h1>OKX资产监控 v2.0</h1>
             <div class="last-update">最后更新: <span id="update-time">--:--:--</span></div>
         </header>
         
@@ -574,12 +506,11 @@
                     <button class="refresh-btn" id="auto-refresh-toggle">开启自动刷新</button>
                     <button class="export-btn" id="export-data">导出数据</button>
                 </div>
-                <div class="cache-indicator" id="cache-indicator">数据来源: --</div>
             </div>
             
             <div class="card">
                 <div class="card-title">资产分布</div>
-                <div class="chart-container" id="distribution-container">
+                <div class="chart-container">
                     <canvas id="distribution-chart"></canvas>
                 </div>
             </div>
@@ -592,8 +523,7 @@
                         <button class="trend-btn" data-period="30d">1M</button>
                     </div>
                 </div>
-                
-                <div class="chart-container" id="trend-container">
+                <div class="chart-container">
                     <canvas id="trend-chart"></canvas>
                 </div>
             </div>
@@ -617,16 +547,15 @@
                             <th>持仓量</th>
                             <th>标记价格</th>
                             <th>开仓价格</th>
-                            <th>预估强平价</th>
+                            <th>强平价格</th>
                             <th>浮动收益</th>
                             <th>收益率</th>
-                            <th>维持保证金率</th>
                             <th>价格提醒</th>
                         </tr>
                     </thead>
                     <tbody id="positions-body">
                         <tr>
-                            <td colspan="10" class="no-data">请配置API并刷新数据</td>
+                            <td colspan="9" class="no-data">请配置API并刷新数据</td>
                         </tr>
                     </tbody>
                 </table>
@@ -635,6 +564,13 @@
     </div>
 
     <script>
+        // 版本控制 - 清除旧缓存
+        if (localStorage.getItem('appVersion') !== '2.0') {
+            localStorage.clear();
+            localStorage.setItem('appVersion', '2.0');
+            console.log('已清除旧缓存，版本更新到 2.0');
+        }
+
         // 存储API配置和资产数据
         let apiConfig = {
             apiKey: '',
@@ -671,6 +607,7 @@
                 triggered: false
             });
             localStorage.setItem('priceAlerts', JSON.stringify(priceAlerts));
+            showStatus(`已设置价格提醒: ${instId} - ${targetPrice}`, 'success');
         }
         
         function removePriceAlert(instId, alertId) {
@@ -684,26 +621,32 @@
         }
         
         function checkPriceAlerts() {
+            let triggered = false;
             assetsData.positions.forEach(position => {
                 const alerts = priceAlerts[position.instId];
                 if (alerts) {
                     alerts.forEach(alert => {
-                        if (!alert.triggered && 
-                            ((position.posSide === 'long' && position.markPx >= alert.price) ||
-                             (position.posSide === 'short' && position.markPx <= alert.price))) {
-                            // 触发提醒
-                            playAlertSound();
-                            alert.triggered = true;
-                            showStatus(`价格提醒: ${position.instId} 达到 ${alert.price}`, 'success');
+                        if (!alert.triggered) {
+                            const currentPrice = position.markPx;
+                            if ((position.posSide === 'long' && currentPrice >= alert.price) ||
+                                (position.posSide === 'short' && currentPrice <= alert.price)) {
+                                playAlertSound();
+                                alert.triggered = true;
+                                showStatus(`🔔 价格提醒: ${position.instId} 达到 ${alert.price}`, 'success');
+                                triggered = true;
+                            }
                         }
                     });
                 }
             });
+            if (triggered) {
+                localStorage.setItem('priceAlerts', JSON.stringify(priceAlerts));
+            }
         }
         
         function playAlertSound() {
-            // 创建音频上下文播放提示音
             try {
+                // 使用浏览器音频API播放提示音
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
@@ -720,35 +663,124 @@
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + 1);
             } catch (e) {
-                console.log('音频播放失败:', e);
+                console.log('音频播放失败，请确保浏览器支持Web Audio API');
             }
         }
 
-        // ========== 数据处理函数 ==========
+        // ========== 核心功能函数 ==========
 
-        // 处理持仓数据 - 修复收益率计算
-        function processPositionsData(positions) {
-            if (!positions || positions.length === 0) {
-                return [];
+        function generateSignature(timestamp, method, requestPath, body = '') {
+            const message = timestamp + method + requestPath + body;
+            return CryptoJS.enc.Base64.stringify(
+                CryptoJS.HmacSHA256(message, apiConfig.secretKey)
+            );
+        }
+
+        async function fetchAccountBalance() {
+            if (!apiConfig.apiKey || !apiConfig.secretKey || !apiConfig.passphrase) {
+                throw new Error('请先配置API信息');
             }
+
+            const method = 'GET';
+            const requestPath = '/api/v5/account/balance';
+            const timestamp = new Date().toISOString();
+            const signature = generateSignature(timestamp, method, requestPath);
+
+            const response = await fetch(`https://www.okx.com${requestPath}`, {
+                method: method,
+                headers: {
+                    'OK-ACCESS-KEY': apiConfig.apiKey,
+                    'OK-ACCESS-SIGN': signature,
+                    'OK-ACCESS-TIMESTAMP': timestamp,
+                    'OK-ACCESS-PASSPHRASE': apiConfig.passphrase,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`API请求失败: ${response.status}`);
             
-            const activePositions = positions.filter(position => 
-                parseFloat(position.pos) > 0
+            const data = await response.json();
+            if (data.code !== '0') throw new Error(`API错误: ${data.msg}`);
+            
+            return data.data[0].details;
+        }
+
+        async function fetchPositions() {
+            if (!apiConfig.apiKey || !apiConfig.secretKey || !apiConfig.passphrase) {
+                throw new Error('请先配置API信息');
+            }
+
+            const method = 'GET';
+            const requestPath = '/api/v5/account/positions';
+            const timestamp = new Date().toISOString();
+            const signature = generateSignature(timestamp, method, requestPath);
+
+            const response = await fetch(`https://www.okx.com${requestPath}`, {
+                method: method,
+                headers: {
+                    'OK-ACCESS-KEY': apiConfig.apiKey,
+                    'OK-ACCESS-SIGN': signature,
+                    'OK-ACCESS-TIMESTAMP': timestamp,
+                    'OK-ACCESS-PASSPHRASE': apiConfig.passphrase,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`API请求失败: ${response.status}`);
+            
+            const data = await response.json();
+            if (data.code !== '0') throw new Error(`API错误: ${data.msg}`);
+            
+            return data.data;
+        }
+
+        function processAssetData(balances) {
+            if (!balances || balances.length === 0) return null;
+
+            let total = 0;
+            const breakdown = [];
+            
+            const assetsWithBalance = balances.filter(asset => 
+                parseFloat(asset.eq) > 0 || parseFloat(asset.cashBal) > 0
             );
             
-            if (activePositions.length === 0) {
-                return [];
-            }
+            if (assetsWithBalance.length === 0) return null;
             
+            assetsWithBalance.forEach(asset => {
+                const value = parseFloat(asset.eq) || parseFloat(asset.cashBal) || 0;
+                if (value > 0) {
+                    total += value;
+                    breakdown.push({
+                        name: asset.ccy,
+                        value: value,
+                        percentage: 0
+                    });
+                }
+            });
+            
+            breakdown.forEach(asset => {
+                asset.percentage = total > 0 ? (asset.value / total * 100).toFixed(1) : 0;
+            });
+            
+            breakdown.sort((a, b) => b.value - a.value);
+            
+            return { total, breakdown };
+        }
+
+        function processPositionsData(positions) {
+            if (!positions || positions.length === 0) return [];
+
+            const activePositions = positions.filter(position => parseFloat(position.pos) > 0);
+            if (activePositions.length === 0) return [];
+
             return activePositions.map(position => {
                 const pos = parseFloat(position.pos);
                 const avgPx = parseFloat(position.avgPx) || 0;
                 const markPx = parseFloat(position.markPx) || 0;
                 const liqPx = parseFloat(position.liqPx) || 0;
                 const margin = parseFloat(position.margin) || 0;
-                const mgnRatio = parseFloat(position.mgnRatio) || 0;
                 
-                // 计算浮动收益
+                // 正确计算浮动收益和收益率
                 let unrealizedPnl = 0;
                 if (position.posSide === 'long') {
                     unrealizedPnl = (markPx - avgPx) * pos;
@@ -756,7 +788,6 @@
                     unrealizedPnl = (avgPx - markPx) * pos;
                 }
                 
-                // 修复收益率计算 - 基于保证金计算
                 const pnlPercent = margin > 0 ? (unrealizedPnl / margin * 100) : 0;
                 
                 return {
@@ -769,44 +800,49 @@
                     unrealizedPnl: unrealizedPnl,
                     pnlPercent: pnlPercent,
                     margin: margin,
-                    mgnRatio: mgnRatio,
-                    posSide: position.posSide || 'long',
-                    lever: parseFloat(position.lever) || 1
+                    posSide: position.posSide || 'long'
                 };
             });
         }
 
-        // ========== 无刷新更新函数 ==========
+        function formatNumber(num, decimals = 2) {
+            if (isNaN(num)) return '0.00';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
 
-        function updateTotalAssetsDisplay(total) {
-            let displayValue = total;
+        // ========== 界面更新函数 ==========
+
+        function updateTotalAssetsDisplay() {
+            let displayValue = assetsData.total;
             let unitSymbol = '$';
             
             if (currentUnit === 'CNY') {
-                displayValue = total * 7.2;
+                displayValue = assetsData.total * 7.2;
                 unitSymbol = '¥';
             } else if (currentUnit === 'BTC') {
-                displayValue = total / 50000;
+                displayValue = assetsData.total / 50000;
                 unitSymbol = '₿';
             }
             
-            const totalAssetsElement = document.getElementById('total-assets');
-            totalAssetsElement.innerHTML = `
+            document.getElementById('total-assets').innerHTML = `
                 ${unitSymbol}${formatNumber(displayValue)}
                 <button class="unit-toggle" id="unit-toggle">切换单位</button>
             `;
         }
 
-        function updateAssetsBreakdown(newBreakdown) {
-            const breakdownContainer = document.getElementById('assets-breakdown');
+        function updateAssetsBreakdown() {
+            const container = document.getElementById('assets-breakdown');
             
-            if (!newBreakdown || newBreakdown.length === 0) {
-                breakdownContainer.innerHTML = '<div class="no-data">暂无资产数据</div>';
+            if (!assetsData.breakdown || assetsData.breakdown.length === 0) {
+                container.innerHTML = '<div class="no-data">暂无资产数据</div>';
                 return;
             }
             
             let html = '';
-            newBreakdown.forEach(asset => {
+            assetsData.breakdown.forEach(asset => {
                 let displayValue = asset.value;
                 let unitSymbol = '$';
                 
@@ -821,7 +857,7 @@
                 html += `
                     <div class="asset-item">
                         <div class="asset-name">
-                            <div class="asset-icon" style="background-color: ${asset.color}">${asset.name.substring(0, 2)}</div>
+                            <div class="asset-icon">${asset.name.substring(0, 2)}</div>
                             <span>${asset.name}</span>
                         </div>
                         <div>
@@ -832,19 +868,19 @@
                 `;
             });
             
-            breakdownContainer.innerHTML = html;
+            container.innerHTML = html;
         }
 
-        function updatePositions(newPositions) {
-            const positionsBody = document.getElementById('positions-body');
+        function updatePositions() {
+            const container = document.getElementById('positions-body');
             
-            if (!newPositions || newPositions.length === 0) {
-                positionsBody.innerHTML = '<tr><td colspan="10" class="no-data">暂无持仓数据</td></tr>';
+            if (!assetsData.positions || assetsData.positions.length === 0) {
+                container.innerHTML = '<tr><td colspan="9" class="no-data">暂无持仓数据</td></tr>';
                 return;
             }
             
             let html = '';
-            newPositions.forEach((position, index) => {
+            assetsData.positions.forEach((position, index) => {
                 let displayPnl = position.unrealizedPnl;
                 let unitSymbol = '$';
                 
@@ -874,28 +910,25 @@
                         <td class="${position.pnlPercent >= 0 ? 'positive' : 'negative'}">
                             ${position.pnlPercent >= 0 ? '+' : ''}${position.pnlPercent.toFixed(2)}%
                         </td>
-                        <td>${(position.mgnRatio * 100).toFixed(2)}%</td>
                         <td>
-                            <div class="alert-config">
-                                <div class="alert-input-group">
-                                    <input type="number" id="alert-price-${index}" placeholder="目标价格" step="0.0001">
-                                    <button class="alert-btn" onclick="addAlert('${position.instId}', ${index})">设置提醒</button>
-                                </div>
-                                <div class="alerts-list">
-                                    ${alerts.map(alert => `
-                                        <div class="alert-item">
-                                            <span>${alert.price}</span>
-                                            <button class="remove-alert" onclick="removeAlert('${position.instId}', ${alert.id})">×</button>
-                                        </div>
-                                    `).join('')}
-                                </div>
+                            <div class="alert-input-group">
+                                <input type="number" id="alert-price-${index}" placeholder="目标价格" step="0.0001">
+                                <button class="alert-btn" onclick="addAlert('${position.instId}', ${index})">设置</button>
+                            </div>
+                            <div class="alerts-list">
+                                ${alerts.map(alert => `
+                                    <div class="alert-item">
+                                        <span>${alert.price}</span>
+                                        <button class="remove-alert" onclick="removeAlert('${position.instId}', ${alert.id})">×</button>
+                                    </div>
+                                `).join('')}
                             </div>
                         </td>
                     </tr>
                 `;
             });
             
-            positionsBody.innerHTML = html;
+            container.innerHTML = html;
         }
 
         // ========== 价格提醒界面函数 ==========
@@ -906,16 +939,16 @@
             if (price) {
                 addPriceAlert(instId, price);
                 input.value = '';
-                refreshData(); // 刷新界面更新提醒列表
+                updatePositions(); // 刷新提醒列表
             }
         }
         
         function removeAlert(instId, alertId) {
             removePriceAlert(instId, alertId);
-            refreshData(); // 刷新界面更新提醒列表
+            updatePositions(); // 刷新提醒列表
         }
 
-        // ========== 其他核心函数 ==========
+        // ========== 其他功能函数 ==========
 
         async function refreshData() {
             if (!apiConfig.apiKey || !apiConfig.secretKey || !apiConfig.passphrase) {
@@ -937,20 +970,20 @@
                 
                 const processedData = processAssetData(balances);
                 if (processedData) {
-                    saveHistoricalData(processedData.total);
-                    
                     assetsData = {
                         ...processedData,
                         positions: processPositionsData(positions)
                     };
                     
-                    updateTotalAssetsDisplay(assetsData.total);
-                    updateAssetsBreakdown(assetsData.breakdown);
-                    updatePositions(assetsData.positions);
+                    updateTotalAssetsDisplay();
+                    updateAssetsBreakdown();
+                    updatePositions();
                     updateCharts();
                     updateTime();
                     checkPriceAlerts();
                     showStatus('数据更新成功', 'success');
+                } else {
+                    showStatus('暂无资产数据', 'error');
                 }
             } catch (error) {
                 showStatus('获取数据失败: ' + error.message, 'error');
@@ -961,52 +994,146 @@
             }
         }
 
-        // ========== 数据持久化方案 ==========
-
-        // 方案1: 使用GitHub Gist API存储数据（需要GitHub token）
-        async function saveDataToGist(data) {
-            const gistToken = localStorage.getItem('githubToken');
-            if (!gistToken) return null;
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('api-status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
             
-            try {
-                const response = await fetch('https://api.github.com/gists', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `token ${gistToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        description: 'OKX资产历史数据',
-                        public: false,
-                        files: {
-                            'okx-data.json': {
-                                content: JSON.stringify(data)
-                            }
-                        }
-                    })
-                });
-                return await response.json();
-            } catch (error) {
-                console.error('保存到Gist失败:', error);
-                return null;
+            setTimeout(() => {
+                statusElement.textContent = '';
+                statusElement.className = 'status';
+            }, 5000);
+        }
+
+        // ========== 初始化函数 ==========
+
+        function initCharts() {
+            const distributionCtx = document.getElementById('distribution-chart').getContext('2d');
+            distributionChart = new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const trendCtx = document.getElementById('trend-chart').getContext('2d');
+            trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#00d2d3', backgroundColor: 'rgba(0, 210, 211, 0.1)' }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateCharts() {
+            if (assetsData.breakdown && assetsData.breakdown.length > 0) {
+                distributionChart.data.labels = assetsData.breakdown.map(asset => asset.name);
+                distributionChart.data.datasets[0].data = assetsData.breakdown.map(asset => parseFloat(asset.percentage));
+                distributionChart.update();
             }
         }
 
-        // 方案2: 使用浏览器同步存储（Chrome扩展可用）
-        function saveToSyncStorage(data) {
-            if (chrome && chrome.storage && chrome.storage.sync) {
-                chrome.storage.sync.set({okxData: data});
+        function updateTime() {
+            document.getElementById('update-time').textContent = new Date().toLocaleTimeString();
+        }
+
+        function loadApiConfig() {
+            const savedConfig = localStorage.getItem('okxApiConfig');
+            if (savedConfig) {
+                apiConfig = JSON.parse(savedConfig);
+                document.getElementById('api-key').value = apiConfig.apiKey;
+                document.getElementById('secret-key').value = apiConfig.secretKey;
+                document.getElementById('passphrase').value = apiConfig.passphrase;
+                document.getElementById('api-config').classList.add('hidden');
             }
         }
 
-        // 初始化
+        function saveApiConfig() {
+            const apiKey = document.getElementById('api-key').value.trim();
+            const secretKey = document.getElementById('secret-key').value.trim();
+            const passphrase = document.getElementById('passphrase').value.trim();
+            
+            if (!apiKey || !secretKey || !passphrase) {
+                showStatus('请填写完整的API配置信息', 'error');
+                return;
+            }
+            
+            apiConfig = { apiKey, secretKey, passphrase };
+            localStorage.setItem('okxApiConfig', JSON.stringify(apiConfig));
+            showStatus('API配置已保存', 'success');
+            document.getElementById('api-config').classList.add('hidden');
+            refreshData();
+        }
+
+        function clearApiConfig() {
+            document.getElementById('api-key').value = '';
+            document.getElementById('secret-key').value = '';
+            document.getElementById('passphrase').value = '';
+            apiConfig = { apiKey: '', secretKey: '', passphrase: '' };
+            localStorage.removeItem('okxApiConfig');
+            showStatus('API配置已清除', 'success');
+        }
+
+        function showApiConfig() {
+            document.getElementById('api-config').classList.remove('hidden');
+        }
+
+        function toggleUnit() {
+            const units = ['USD', 'CNY', 'BTC'];
+            currentUnit = units[(units.indexOf(currentUnit) + 1) % units.length];
+            updateTotalAssetsDisplay();
+            updateAssetsBreakdown();
+            updatePositions();
+        }
+
+        function setTrendPeriod(period) {
+            currentTrendPeriod = period;
+            document.querySelectorAll('.trend-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.trend-btn[data-period="${period}"]`).classList.add('active');
+        }
+
+        function toggleAutoRefresh() {
+            const btn = document.getElementById('auto-refresh-toggle');
+            if (isAutoRefresh) {
+                clearInterval(autoRefreshInterval);
+                isAutoRefresh = false;
+                btn.textContent = '开启自动刷新';
+            } else {
+                autoRefreshInterval = setInterval(refreshData, 30000);
+                isAutoRefresh = true;
+                btn.textContent = '关闭自动刷新';
+                refreshData();
+            }
+        }
+
+        function exportData() {
+            if (!assetsData.total) {
+                showStatus('暂无数据可导出', 'error');
+                return;
+            }
+            
+            const dataStr = JSON.stringify({
+                timestamp: new Date().toISOString(),
+                ...assetsData
+            }, null, 2);
+            
+            const blob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `okx-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showStatus('数据导出成功', 'success');
+        }
+
         function init() {
             initCharts();
             loadApiConfig();
-            updateTotalAssetsDisplay(0);
+            updateTotalAssetsDisplay();
             updateTime();
             
-            // 绑定事件
             document.getElementById('save-api').addEventListener('click', saveApiConfig);
             document.getElementById('clear-api').addEventListener('click', clearApiConfig);
             document.getElementById('refresh-btn').addEventListener('click', refreshData);
@@ -1023,11 +1150,6 @@
                 }
             });
         }
-
-        // 注意：这里需要包含其他必要的函数（fetchAccountBalance, fetchPositions, processAssetData, 
-        // generateSignature, formatNumber, initCharts, updateCharts, updateTrendChart, 
-        // saveHistoricalData, getHistoricalData, showStatus, saveApiConfig, clearApiConfig, 
-        // loadApiConfig, showApiConfig, toggleAutoRefresh, exportData 等）
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
